@@ -1,4 +1,4 @@
-# M202A
+# Activity Classification Using In-Ear Wearables
 
 
 # Project Overview
