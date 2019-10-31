@@ -8,6 +8,11 @@ The goal of our project is to utilize the eSense in-ear wearable device and othe
 ## Approach
 Input data will be recorded from the microphone and 6-axis intertial measurement unit (IMU) in the eSense device, and IMU in the wrist band. Traditional signal procesing approaches, including a  complementary/Kalman filter, will be implemented. Filtered data will be used to train a Convolutional Neural Network (CNN) for activity classification. A method of storing user activity data will also be implemented, allowing data analysis such as activity frequency and temporal patterns.  
 
+## Past Work
+There are a number of published studies which we can draw from and implement into our final product. Specifically, a lot of research has been put into the best methods for acitivity classifications using IMU data from various sensors. For instance, we will draw heavily from "A Comprehensive Study of Activity Recognition Using Accelerometers", a study carried out by the University of Bristol. We will use this study to help determine the optimal sampling frequency from our imu, which algorithms work best for acitivity classification, determine the window size of our input, etc. 
+
+We will expand upon this work by attempting to improve activity classification accuracy by combining data from a combination of sensors. Multiple imu sensors (smartwatch and eSense earable imu), heart rate data (from smartwatch), and audio data (eSense earable) will be inputs into our Convolutional Neural Network that will classify activities. Additionally, we seek to explore the feasability of real time activity classification via an Android App using TensorFlow light.
+
 ## Deliverables
 * Trained CNN with sufficient accuracy in classifying several similar activities using filtered IMU/audio data 
 * Android Application with real-time activity classification
