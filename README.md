@@ -16,9 +16,6 @@
 ## Past Work
  There are a number of published studies which we can draw from and implement into our final product. Specifically, a lot of research has been put into the best methods for acitivity classifications using IMU data from various sensors. For instance, we will draw heavily from "A Comprehensive Study of Activity Recognition Using Accelerometers", a study carried out by the University of Bristol.<sup>test</sup> We will use this study to help determine the optimal sampling frequency from our imu, which algorithms work best for acitivity classification, determine the window size of our input, etc. 
  We will expand upon this work by attempting to improve activity classification accuracy by combining data from a combination of sensors. Multiple imu sensors (smartwatch and eSense earable imu), heart rate data (from smartwatch), and audio data (eSense earable) will be inputs into our Convolutional Neural Network that will classify activities. Additionally, we seek to explore the feasability of real time activity classification via an Android App using TensorFlow light.
- 
-### References
-(1) Twomey, N.; Diethe, T.; Fafoutis, X.; Elsts, A.; McConville, R.; Flach, P.; Craddock, I. A Comprehensive Study of Activity Recognition Using Accelerometers. Informatics 2018, 5, 27.
 
 ## Approach
  Input data will be recorded from the microphone and 6-axis intertial measurement unit (IMU) in the eSense device, and IMU in the wrist band. Traditional signal procesing approaches, possibly including a  complementary/Kalman filter, will be implemented. Filtered data will be used to train a Convolutional Neural Network (CNN) for activity classification. A method of storing user activity data will also be implemented, allowing data analysis such as activity frequency and temporal patterns.  
@@ -61,3 +58,7 @@ Since we are a group of two, most subsections of the project will be developed t
   * Additional Signal Processing  
   * CNN model structure/implementation
   * Android Application UI/integration with CNN
+  
+  
+### References
+ (1) Twomey, N.; Diethe, T.; Fafoutis, X.; Elsts, A.; McConville, R.; Flach, P.; Craddock, I. A Comprehensive Study of Activity  Recognition Using Accelerometers. Informatics 2018, 5, 27.
