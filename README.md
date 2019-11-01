@@ -14,7 +14,7 @@
   * No Activity (Sitting Still)
 
 ## Past Work
- There are a number of published studies which we can draw from and implement into our final product. Specifically, a lot of research has been put into the best methods for acitivity classifications using IMU data from various sensors. For instance, we will draw heavily from "A Comprehensive Study of Activity Recognition Using Accelerometers", a study carried out by the University of Bristol._1 We will use this study to help determine the optimal sampling frequency from our imu, which algorithms work best for acitivity classification, determine the window size of our input, etc. 
+ There are a number of published studies which we can draw from and implement into our final product. Specifically, a lot of research has been put into the best methods for acitivity classifications using IMU data from various sensors. For instance, we will draw heavily from "A Comprehensive Study of Activity Recognition Using Accelerometers", a study carried out by the University of Bristol.<sup>test</sup> We will use this study to help determine the optimal sampling frequency from our imu, which algorithms work best for acitivity classification, determine the window size of our input, etc. 
  We will expand upon this work by attempting to improve activity classification accuracy by combining data from a combination of sensors. Multiple imu sensors (smartwatch and eSense earable imu), heart rate data (from smartwatch), and audio data (eSense earable) will be inputs into our Convolutional Neural Network that will classify activities. Additionally, we seek to explore the feasability of real time activity classification via an Android App using TensorFlow light.
  
 ### References
