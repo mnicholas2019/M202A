@@ -168,7 +168,9 @@ def activity_name(label):
     return "Other"
 
 if __name__=="__main__":
-    folder = os.getcwd() + '\\First_Data\\'
+    #folder = os.getcwd() + '\\First_Data\\'
+    folder = os.getcwd() + '/First_Data/'
+
     esense_data = load_esense(folder + ESENSE_FILE_NAME)
     wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
     wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
