@@ -7,15 +7,18 @@ Created on Wed Nov  6 18:22:33 2019
 
 import csv
 import datetime
-import numpy as np
 import os
+import audio_metadata
+import numpy as np
 import matplotlib.pyplot as plt
+from scipy.io import wavfile
 from Training import Activity
 
 ACCEL_FILE_NAME = "ACCELEROMETER--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
 GYRO_FILE_NAME = "GYROSCOPE--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
 MARKER_FILE_NAME = "MARKER--org.md2k.mcerebrum--PHONE.csv"
 ESENSE_FILE_NAME = "esense_data.txt"
+AUDIO_FILE_NAME = "audio.wav"
 
 plt.style.use('seaborn-whitegrid')
 
@@ -39,7 +42,7 @@ def merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, 
         esense_trimmed = esense_data[np.logical_and(esense_data[:, 0] >= start,  esense_data[:, 0] <= end)]
         wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
         wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
-        audio_trimmed = audio_data#audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
+        audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
         
         training_activities.append(Activity(label, 
                                             esense_trimmed,  
@@ -107,7 +110,19 @@ def load_esense(data_file):
     
     return data
 
-   # print ("Sampling Rate: {}".format(data.shape[0] / (sample_time - start).total_seconds()))
+def load_audio(audio_file):
+    metadata = audio_metadata.load(audio_file)
+    
+    start = int(metadata.tags['TDRC'][0])
+    print ('Timestamp: {}'.format(start))
+    
+    fs, data = wavfile.read(audio_file)
+    
+    timestamps = np.flip(start - np.linspace(0, (data.shape[0] * 1000)/ fs, data.shape[0]))
+    audio_data = np.column_stack((np.transpose(timestamps), data[:, 0]))
+     
+    return audio_data
+  # print ("Sampling Rate: {}".format(data.shape[0] / (sample_time - start).total_seconds()))
     
     
 #    x = data[:, 0]
@@ -168,12 +183,15 @@ def activity_name(label):
     return "Other"
 
 if __name__=="__main__":
-    folder = os.getcwd() + '\\First_Data\\'
-    esense_data = load_esense(folder + ESENSE_FILE_NAME)
-    wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
-    wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
-    activities = load_activities(folder + MARKER_FILE_NAME)
-    audio_data = ""
-    training_data = merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities)
+    #folder = os.getcwd() + '\\First_Data\\'
+    training_data = []
+    for f in os.walk(os.getcwd()):
+        if ("Data" in f[0]):
+            folder = f[0] + "\\"
+            esense_data = load_esense(folder + ESENSE_FILE_NAME)
+            wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
+            wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
+            activities = load_activities(folder + MARKER_FILE_NAME)
+            audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            training_data.append(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
     print (training_data)
-    print (esense_data.shape)
