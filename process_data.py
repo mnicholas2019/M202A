@@ -12,6 +12,7 @@ import audio_metadata
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
+from scipy.fftpack import fft
 from Training import Activity
 
 ACCEL_FILE_NAME = "ACCELEROMETER--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
@@ -44,11 +45,13 @@ def merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, 
         wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
         audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
         
+        fft_out = fft(audio_trimmed)
+        
         training_activities.append(Activity(label, 
                                             esense_trimmed,  
                                             wrist_acc_trimmed,
                                             wrist_gyro_trimmed,
-                                            audio_trimmed
+                                            fft_out
                                             ))
     return training_activities
 
