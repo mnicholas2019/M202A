@@ -21,6 +21,8 @@ MARKER_FILE_NAME = "MARKER--org.md2k.mcerebrum--PHONE.csv"
 ESENSE_FILE_NAME = "esense_data.txt"
 AUDIO_FILE_NAME = "audio.wav"
 
+WINDOW_SIZE = 1000 #in ms
+
 plt.style.use('seaborn-whitegrid')
 
 ACTIVITIES = {
@@ -58,7 +60,7 @@ def merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, 
 
 def load_activities(data_file):
     data = np.empty((0, 3))
-    
+    last_end_time = 0
     with open(data_file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         is_start = True
@@ -67,12 +69,15 @@ def load_activities(data_file):
             if is_start:
                 start_time = int(row[0])
                 is_start = False
+                if last_end_time != 0:
+                    data = np.append(data, np.array([[ACTIVITIES["Other"], last_end_time, start_time]]), axis=0)
             else:
                 try:
                     label = ACTIVITIES[row[2]]
                 except KeyError:
                     label = "Other"
                 data = np.append(data, np.array([[label, start_time, int(row[0])]]), axis=0)
+                last_end_time = int(row[0])
                 is_start = True
     return data
             
@@ -195,6 +200,7 @@ if __name__=="__main__":
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
             activities = load_activities(folder + MARKER_FILE_NAME)
+            print (activities)
             audio_data = load_audio(folder + AUDIO_FILE_NAME)
             training_data.append(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
     print (training_data)
