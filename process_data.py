@@ -11,6 +11,7 @@ import os
 import audio_metadata
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import signal
 from scipy.io import wavfile
 from scipy.fftpack import fft
 from scipy.stats import binned_statistic
@@ -175,6 +176,14 @@ def load_audio(audio_file):
      
     return audio_data
 
+def lpf(data, fs):
+    fc = 5
+    w = fc / (fs / 2)
+    b, a = signal.butter(10, w, 'low')
+    output = signal.filtfilt(b, a, data)
+    return output
+
+
 def binned_audio_fft(data, fs, fmax, num_bins):
     T = 1.0 / fs
     N = data.shape[0]
@@ -244,9 +253,13 @@ if __name__=="__main__":
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
-            activities = load_activities(folder + MARKER_FILE_NAME)
-            audio_data = load_audio(folder + AUDIO_FILE_NAME)
-            training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
+            plt.plot(esense_data[:, 1])
+            plt.figure(2);
+            plt.plot(lpf(esense_data[:, 1], 20), label='filtered')
+            plt.show()
+            #activities = load_activities(folder + MARKER_FILE_NAME)
+            #audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            #training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
             #raining_data.extend(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
 
            # plt.plot(abs(training_data[0].audio_data))
