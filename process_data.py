@@ -16,6 +16,7 @@ from scipy.io import wavfile
 from scipy.fftpack import fft
 from scipy.stats import binned_statistic
 from Training import Activity
+import pandas as pd
 
 ACCEL_FILE_NAME = "ACCELEROMETER--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
 GYRO_FILE_NAME = "GYROSCOPE--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
@@ -249,24 +250,28 @@ if __name__=="__main__":
     training_data = []
     for f in os.walk(os.getcwd()):
         if ("Official_Data_Eating_Drinking_1" in f[0]):
-            folder = f[0] + "\\"
+            folder = f[0] + "/"
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
-            plt.plot(esense_data[:, 1])
-            plt.figure(2);
-            plt.plot(lpf(esense_data[:, 1], 20), label='filtered')
-            plt.show()
-            #activities = load_activities(folder + MARKER_FILE_NAME)
-            #audio_data = load_audio(folder + AUDIO_FILE_NAME)
-            #training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
+            #plt.plot(esense_data[:, 1])
+            #plt.figure(2);
+            #plt.plot(lpf(esense_data[:, 1], 20), label='filtered')
+            #plt.show()
+            activities = load_activities(folder + MARKER_FILE_NAME)
+            audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
             #raining_data.extend(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
 
            # plt.plot(abs(training_data[0].audio_data))
-           # plot_3axis(wrist_acc_data, (1, 2, 3))
-           # print (wrist_acc_data.shape[0])
+            #plot_3axis(wrist_acc_data, (1, 2, 3))
+            #print (wrist_acc_data.shape[0])
            # print (1000 * wrist_acc_data.shape[0] / (wrist_acc_data[-1][0] - wrist_acc_data[0][0]))
             #plot_3axis(esense_data, (1, 2, 3))
             #print (esense_data.shape[0])
            # print (1000 * esense_data.shape[0] / (esense_data[-1][0] - esense_data[0][0]))
-    #print (training_data)
+    df = pd.DataFrame(columns = ['esense gyro', 'wrist acc', 'wrist gyro', 'audio', 'label'])
+    print(df)
+    for activity in training_data:
+        df = activity.calcFeaturesToABT(df)
+    print(df)
