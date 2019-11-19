@@ -5,7 +5,7 @@ Created on Wed Nov  6 18:22:33 2019
 @author: Aidan
 """
 
-
+import pandas as pd
 class Activity():
     
     def __init__(self, label, esense_data, wrist_acc_data, wrist_gyro_data, audio_data):
