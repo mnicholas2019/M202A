@@ -61,6 +61,9 @@ def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio
             end = start + WINDOW_LENGTH
             
             esense_trimmed = esense_data[np.logical_and(esense_data[:, 0] >= start,  esense_data[:, 0] <= end)]
+            
+            
+            
             wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
             wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
             audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
@@ -244,6 +247,12 @@ def plot_3axis(data, axis):
     plt.plot(x, data[:, axis[2]], '.-')
     plt.title('Z Axis')
     plt.xlabel('Samples')
+    
+# Save into a CSV
+def save_training_data(filename, data):
+    if (".csv" not in filename):
+        filename  += ".csv"
+    np.savetxt(filename, data, delimiter=',')
 
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
@@ -260,6 +269,7 @@ if __name__=="__main__":
             #plt.show()
             activities = load_activities(folder + MARKER_FILE_NAME)
             audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            
             training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
             #raining_data.extend(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
 
@@ -270,8 +280,14 @@ if __name__=="__main__":
             #plot_3axis(esense_data, (1, 2, 3))
             #print (esense_data.shape[0])
            # print (1000 * esense_data.shape[0] / (esense_data[-1][0] - esense_data[0][0]))
-    df = pd.DataFrame(columns = ['esense gyro', 'wrist acc', 'wrist gyro', 'audio', 'label'])
-    print(df)
+    columns = ['esense acc', 'esense gyro', 'wrist acc', 'wrist gyro', 'audio', 'label']
+    df = pd.DataFrame(columns = columns)
+    #print(df)
     for activity in training_data:
-        df = activity.calcFeaturesToABT(df)
-    print(df)
+        df = activity.calcFeaturesToABT(df, columns)
+    
+    ### Save Dataframe to serialized file
+    df.to_pickle("dataframe.pkl")
+    ### Save Dataframe to serialized file
+    df_loaded = pd.read_pickle("dataframe.pkl")
+    print(df_loaded)

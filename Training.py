@@ -15,13 +15,13 @@ class Activity():
         self.wrist_gyro_data = wrist_gyro_data
         self.audio_data = audio_data
     
-    def calcFeaturesToABT(self, df):
-    	df2 = pd.DataFrame(data =[self.calculateFeatures()], columns = ['esense gyro', 'wrist acc', 'wrist gyro', 'audio', 'label'])
+    def calcFeaturesToABT(self, df, columns):
+    	df2 = pd.DataFrame(data =[self.calculateFeatures()], columns = columns)
     	df = pd.concat([df, df2], ignore_index = True)
     	return df
 
     def calculateFeatures(self):
-    	return [0,1,2,3,self.label]
+    	return [0,1,2,3, 4, self.label]
     	
     
     def __str__(self):
