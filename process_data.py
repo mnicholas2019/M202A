@@ -280,12 +280,30 @@ if __name__=="__main__":
             #plot_3axis(esense_data, (1, 2, 3))
             #print (esense_data.shape[0])
            # print (1000 * esense_data.shape[0] / (esense_data[-1][0] - esense_data[0][0]))
-    columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
+    print('\n\n\n\:driver code:')
+
+    data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
+                    'esense gyro x','esense gyro y','esense gyro z',
+                    'wrist acc x', 'wrist acc y', 'wrist acc z',
+                    'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
+    features = ['mean ', 'stdev ', 'range ', 'variance ']
+    columns = []
+    for data in data_streams:
+        for feature in features:
+            columns.append(feature + data)
+    columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
+    columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
+    columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
+    columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
+
+    #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
     df = pd.DataFrame(columns = columns)
     #print(df)
+    i = 0
     for activity in training_data:
-        df = activity.calcFeaturesToABT(df, columns)
-    
+        df = activity.calcFeaturesToABT(df, columns, i)
+        i += 1
+    print('wrist_acc_data::', training_data[0].wrist_acc_data)
     ### Save Dataframe to serialized file
     df.to_pickle("dataframe.pkl")
     ### Save Dataframe to serialized file
