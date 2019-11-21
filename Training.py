@@ -5,6 +5,7 @@ Created on Wed Nov  6 18:22:33 2019
 @author: Aidan
 """
 import pandas as pd
+from Features import mean
 
 class Activity():
     
@@ -21,8 +22,21 @@ class Activity():
     	return df
 
     def calculateFeatures(self):
-    	return [0,1,2,3, 4, self.label]
+    	return [mean(self.esense_acc_x()) , mean(self.esense_acc_y()) , mean(self.esense_acc_z()) ,3, 4, self.label]
     	
+    def esense_acc_x(self):
+        return self.esense_data[:, 1]
+    def esense_acc_y(self):
+        return self.esense_data[:, 2]
+    def esense_acc_z(self):
+        return self.esense_data[:, 3]
+    
+    def esense_gyro_x(self):
+        return self.esense_data[:, 4]
+    def esense_gyro_y(self):
+        return self.esense_data[:, 5]
+    def esense_gyro_z(self):
+        return self.esense_data[:, 6]
     
     def __str__(self):
         return "Training Data for {}".format(self.label)

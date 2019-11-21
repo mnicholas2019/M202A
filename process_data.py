@@ -280,7 +280,7 @@ if __name__=="__main__":
             #plot_3axis(esense_data, (1, 2, 3))
             #print (esense_data.shape[0])
            # print (1000 * esense_data.shape[0] / (esense_data[-1][0] - esense_data[0][0]))
-    columns = ['esense acc', 'esense gyro', 'wrist acc', 'wrist gyro', 'audio', 'label']
+    columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
     df = pd.DataFrame(columns = columns)
     #print(df)
     for activity in training_data:
