@@ -16,12 +16,12 @@ class Activity():
         self.wrist_gyro_data = wrist_gyro_data
         self.audio_data = audio_data
     
-    def calcFeaturesToABT(self, df, columns, toPrint):
-    	df2 = pd.DataFrame(data =[self.calculateFeatures(toPrint)], columns = columns)
+    def calcFeaturesToABT(self, df, columns):
+    	df2 = pd.DataFrame(data =[self.calculateFeatures()], columns = columns)
     	df = pd.concat([df, df2], ignore_index = True)
     	return df
 
-    def calculateFeatures(self, toPrint):
+    def calculateFeatures(self):
         data_streams = [self.esense_acc_x(), self.esense_acc_y(), self.esense_acc_z(), 
                         self.esense_gyro_x(), self.esense_gyro_y(), self.esense_gyro_z(),
                         self.wrist_acc_x(), self.wrist_acc_y(), self.wrist_acc_z(),
@@ -36,8 +36,7 @@ class Activity():
         features = features + correlations(data_streams[3], data_streams[4], data_streams[5])
         features = features + correlations(data_streams[6], data_streams[7], data_streams[8])
         features = features + correlations(data_streams[9], data_streams[10], data_streams[11])
-        if toPrint == 0:
-            print('features:',features)
+        
 
         return features
         #return [mean(self.esense_acc_x()) , mean(self.esense_acc_y()) , mean(self.esense_acc_z()) ,3, 4, self.label]

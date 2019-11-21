@@ -299,11 +299,9 @@ if __name__=="__main__":
     #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
     df = pd.DataFrame(columns = columns)
     #print(df)
-    i = 0
+
     for activity in training_data:
-        df = activity.calcFeaturesToABT(df, columns, i)
-        i += 1
-    print('wrist_acc_data::', training_data[0].wrist_acc_data)
+        df = activity.calcFeaturesToABT(df, columns)
     ### Save Dataframe to serialized file
     df.to_pickle("dataframe.pkl")
     ### Save Dataframe to serialized file
