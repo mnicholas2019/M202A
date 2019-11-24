@@ -4,6 +4,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score, accuracy_score
 import matplotlib.pyplot as plt
 import itertools
+import pandas as pd
 
 
 def get_details(name):
@@ -65,7 +66,14 @@ def get_details(name):
         f_hz = 25
         dimensions = []
         path = './Motionsense'
-
+    elif (name == 'M202A Project'):
+        num_classes = 5
+        sensors = ['acc', 'gyro', 'microphone']
+        locations = ['right_wrist', 'ears']
+        label_names = ['eating', 'head_scratch', 'drinking', 'smoking', 'other']
+        f_hz = 'n/a'
+        dimensions = []
+        path = './model_data/'
     else:
         print("No such dataset")
 
@@ -143,6 +151,20 @@ def load_dataset(name, path, num_classes):
         y_train_binary = keras.utils.to_categorical(y_train, num_classes)
         y_test_binary = keras.utils.to_categorical(y_test, num_classes)
         y_val_binary = keras.utils.to_categorical(y_val, num_classes)
+
+    elif (name == 'M202A Project'):
+        df = pd.read_pickle(path + "dataframe.pkl")
+        target = df['label']
+        data = df.drop(columns = ['label'])
+
+        x_train = data
+        x_val = data
+        x_test = data
+        y_train = target
+        y_val = target
+        y_test = target
+
+        return x_train, x_val, x_test, y_train, y_val, y_test
 
     else:
         print("No such dataset")

@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, LSTM, Dense, Dropout, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, LSTM, Dense, Dropout, Flatten, Conv1D, MaxPooling1D
 from tensorflow.keras.layers import BatchNormalization, Permute, Reshape
 
 
@@ -49,23 +49,39 @@ def model_MLP(dim, win_len, num_classes, num_hidden_mlp=256, p=0.3, batchnorm=Tr
 
 def model_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, dropout=True):
     model = Sequential(name='CNN')
-    model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+    #model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+    #                 activation='relu',
+    #                 input_shape=(dim, win_len, 1),
+    #                 padding='same', name='Conv_1'))
+    model.add(Conv1D(num_feat_map, kernel_size=1,
                      activation='relu',
-                     input_shape=(dim, win_len, 1),
+                     input_shape=(dim, win_len),
                      padding='same', name='Conv_1'))
+
     if batchnorm:
         model.add(BatchNormalization(name='Bn_1'))
-    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
+
+    #model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
+    model.add(MaxPooling1D(pool_size=2, name='Max_pool_1'))
+
     if dropout:
         model.add(Dropout(p, name='Drop_1'))
-    model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+
+    #model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+    #                 activation='relu', padding='same', name='Conv_2'))
+    model.add(Conv1D(num_feat_map, kernel_size=1,
                      activation='relu', padding='same', name='Conv_2'))
     if batchnorm:
         model.add(BatchNormalization(name='Bn_2'))
-    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_2'))
+
+    #model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_2'))
+    model.add(MaxPooling1D(pool_size=2, name='Max_pool_2'))
+
     if dropout:
         model.add(Dropout(p, name='Drop_2'))
+
     model.add(Flatten(name='Flatten_1'))
+
     model.add(Dense(32, activation='relu'))
     if batchnorm:
         model.add(BatchNormalization(name='Bn_3'))

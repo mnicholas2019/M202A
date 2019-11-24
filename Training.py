@@ -36,10 +36,9 @@ class Activity():
         features = features + correlations(data_streams[3], data_streams[4], data_streams[5])
         features = features + correlations(data_streams[6], data_streams[7], data_streams[8])
         features = features + correlations(data_streams[9], data_streams[10], data_streams[11])
-        
+        features.append(self.label)
 
         return features
-        #return [mean(self.esense_acc_x()) , mean(self.esense_acc_y()) , mean(self.esense_acc_z()) ,3, 4, self.label]
 
 
     def esense_acc_x(self):

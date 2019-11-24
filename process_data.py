@@ -295,15 +295,16 @@ if __name__=="__main__":
     columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
     columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
     columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
-
+    columns.append('label')
     #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
     df = pd.DataFrame(columns = columns)
     #print(df)
 
     for activity in training_data:
         df = activity.calcFeaturesToABT(df, columns)
+
     ### Save Dataframe to serialized file
-    df.to_pickle("dataframe.pkl")
+    df.to_pickle("model_data/dataframe.pkl")
     ### Save Dataframe to serialized file
-    df_loaded = pd.read_pickle("dataframe.pkl")
+    df_loaded = pd.read_pickle("model_data/dataframe.pkl")
     print(df_loaded)
