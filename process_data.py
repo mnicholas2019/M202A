@@ -66,9 +66,9 @@ def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio
             
             wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
             wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
-            audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
-            
-            audio_fft = binned_audio_fft(audio_trimmed[:, 1], AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
+            audio_trimmed = audio_data[np.logical_and(audio_data >= start,  audio_data <= end)]
+
+            audio_fft = binned_audio_fft(audio_trimmed, AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
         
             training_activities.append(Activity(label, 
                                                 esense_trimmed,  
@@ -165,28 +165,9 @@ def load_esense(data_file):
     return data
 
 def load_audio(audio_file): 
-        
-   # with warnings.catch_warnings():
-     #   warnings.filterwarnings("ignore", "C:\\Users\\aidan\\Anaconda3\\lib\\site-packages\\scipy\\io\\wavfile.py:273: WavFileWarning: Chunk (non-data) not understood, skipping it. WavFileWarning)")
-    metadata = audio_metadata.load(audio_file)
-    
-    start = int(metadata.tags['TDRC'][0])
-    #print ('Timestamp: {}'.format(start))
-
     fs, data = wavfile.read(audio_file)
-    
-    timestamps = np.flip(start - np.linspace(0, (data.shape[0] * 1000)/ fs, data.shape[0]))
-    audio_data = np.column_stack((np.transpose(timestamps), data[:, 0]))
-     
-    return audio_data
 
-def lpf(data, fs):
-    fc = 5
-    w = fc / (fs / 2)
-    b, a = signal.butter(10, w, 'low')
-    output = signal.filtfilt(b, a, data)
-    return output
-
+    return fs, data[:, 0]
 
 def binned_audio_fft(data, fs, fmax, num_bins):
     T = 1.0 / fs
@@ -199,29 +180,6 @@ def binned_audio_fft(data, fs, fmax, num_bins):
     #plt.plot(x_fft, data_fft)
     #plt.plot(bin_edges[:-1], bin_means)
     return (bin_edges, bin_means)
-
-
-
-## sample spacing
-#T = 1.0 / 8000.0
-##x = np.linspace(0.0, N*T, N)
-#y = data[:, 0]#np.sin(50.0 * 2.0*np.pi*x) + 0.5*np.sin(80.0 * 2.0*np.pi*x)
-#N = data.shape[0]
-#
-#print (N)
-#yf = fft(y)
-#xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-#
-#print (yf.shape)
-#plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
-#plt.grid()
-#plt.show()
-#
-#data_fft = 2.0/N * np.abs(yf[0:N//2])
-#bin_means, bin_edges, _ = binned_statistic(xf, data_fft, bins=100, range=(0, 2000))
-#print (bin_means.shape)
-#print (bin_edges[:-1].shape)
-#plt.plot(bin_edges[:-1], bin_means)
     
     
 def activity_name(label):
@@ -253,6 +211,41 @@ def save_training_data(filename, data):
     if (".csv" not in filename):
         filename  += ".csv"
     np.savetxt(filename, data, delimiter=',')
+    
+def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
+    
+    # Calculate Magnitude of Sensors
+    pwr_esense = np.sqrt(esense_data[:, 1]**2 + esense_data[:, 2]**2 + esense_data[:, 3]**2)
+    pwr_wrist_acc = np.sqrt(wrist_acc_data[:, 1]**2 + wrist_acc_data[:, 2]**2 + wrist_acc_data[:, 3]**2)
+    pwr_audio = np.abs(audio_data)
+
+    # Find index of Largest Magnitude (Clap)
+    index_esense = np.argmax(pwr_esense)
+    index_wrist = np.argmax(pwr_wrist_acc)
+    index_audio = np.argmax(pwr_audio)
+    
+    # Set Master timestamp from wrist accelerometer and offset esense
+    master_timestamp = wrist_acc_data[index_wrist, 0]
+    esense_timestamp = esense_data[index_esense, 0]
+    esense_diff = master_timestamp - esense_timestamp
+    esense_data[:, 0] += esense_diff
+    if (esense_diff > 1000):
+        print ("WARNING: Esense/Wrist Timestamps Varied by > 1 Second.")
+
+    # Trim data to start at clap
+    wrist_acc_data = wrist_acc_data[index_wrist:, :]
+    wrist_gyro_data = wrist_gyro_data[index_wrist:, :]
+    esense_data = esense_data[index_esense:, :]
+    audio_data = audio_data[index_audio:]
+        
+    # Create timestamps for audio
+    timestamps = master_timestamp + np.linspace(0, (audio_data.shape[0] * 1000)/ fs, audio_data.shape[0])
+    audio_data = np.column_stack((np.transpose(timestamps), audio_data))
+    
+    return (esense_data, wrist_acc_data, wrist_gyro_data, audio_data)
+    
+def pass_test(arr):
+    arr = arr[1000:, :]
 
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
@@ -263,23 +256,14 @@ if __name__=="__main__":
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
-            #plt.plot(esense_data[:, 1])
-            #plt.figure(2);
-            #plt.plot(lpf(esense_data[:, 1], 20), label='filtered')
-            #plt.show()
+            fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
             activities = load_activities(folder + MARKER_FILE_NAME)
-            audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            
+            (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
+                 sync_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, fs)
             
             training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
-            #raining_data.extend(merge_sensor_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
 
-           # plt.plot(abs(training_data[0].audio_data))
-            #plot_3axis(wrist_acc_data, (1, 2, 3))
-            #print (wrist_acc_data.shape[0])
-           # print (1000 * wrist_acc_data.shape[0] / (wrist_acc_data[-1][0] - wrist_acc_data[0][0]))
-            #plot_3axis(esense_data, (1, 2, 3))
-            #print (esense_data.shape[0])
-           # print (1000 * esense_data.shape[0] / (esense_data[-1][0] - esense_data[0][0]))
     print('\n\n\n\:driver code:')
 
     data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
