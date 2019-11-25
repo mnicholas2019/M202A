@@ -8,11 +8,9 @@ Created on Wed Nov  6 18:22:33 2019
 import csv
 #import warnings
 import os
-import audio_metadata
+import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import signal
-from scipy.io import wavfile
 from scipy.fftpack import fft
 from scipy.stats import binned_statistic
 from Training import Activity
@@ -30,6 +28,8 @@ ESENSE_SAMPLE_RATE = 20
 WRIST_SAMPLE_RATE = 2000
 
 AUDIO_SAMPLE_RATE = 8000 
+MFCC_NUM = 20
+MFCC_MAX_LEN = 2000
 AUDIO_MAX_FREQ = 2000 # Maximum audio frequency to analyze
 AUDIO_BINS = 100 # Number of Frequency bins for fft audio
 
@@ -66,9 +66,9 @@ def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio
             
             wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
             wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
-            audio_trimmed = audio_data[np.logical_and(audio_data >= start,  audio_data <= end)]
-
-            audio_fft = binned_audio_fft(audio_trimmed, AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
+            audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
+            
+            audio_fft = binned_audio_fft(audio_trimmed[:, 1], AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
         
             training_activities.append(Activity(label, 
                                                 esense_trimmed,  
@@ -164,10 +164,24 @@ def load_esense(data_file):
     
     return data
 
-def load_audio(audio_file): 
-    fs, data = wavfile.read(audio_file)
+def mfcc_audio(audio_data):
+    mfcc = librosa.feature.mfcc(audio_data, n_mfcc=MFCC_NUM, sr=AUDIO_SAMPLE_RATE)
 
-    return fs, data[:, 0]
+    # If maximum length exceeds mfcc lengths then pad the remaining ones
+    if (MFCC_MAX_LEN > mfcc.shape[1]):
+        pad_width = MFCC_MAX_LEN - mfcc.shape[1]
+        mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
+
+    # Else cutoff the remaining parts
+    else:
+        mfcc = mfcc[:, :MFCC_MAX_LEN]
+    
+    return mfcc
+
+def load_audio(audio_file): 
+    data, fs = librosa.load(audio_file, sr=AUDIO_SAMPLE_RATE)
+    #fs, data = wavfile.read(audio_file)
+    return fs, data
 
 def binned_audio_fft(data, fs, fmax, num_bins):
     T = 1.0 / fs
@@ -232,7 +246,7 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
     if (esense_diff > 1000):
         print ("WARNING: Esense/Wrist Timestamps Varied by > 1 Second.")
 
-    # Trim data to start at clap
+#    # Trim data to start at clap
     wrist_acc_data = wrist_acc_data[index_wrist:, :]
     wrist_gyro_data = wrist_gyro_data[index_wrist:, :]
     esense_data = esense_data[index_esense:, :]
@@ -242,21 +256,41 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
     timestamps = master_timestamp + np.linspace(0, (audio_data.shape[0] * 1000)/ fs, audio_data.shape[0])
     audio_data = np.column_stack((np.transpose(timestamps), audio_data))
     
-    return (esense_data, wrist_acc_data, wrist_gyro_data, audio_data)
+#    font = {'family' : 'normal',
+#        'weight' : 'bold',
+#        'size'   : 14}
+#
+#    plt.rc('font', **font)
+#    
+#    pwr_esense = np.sqrt(esense_data[:, 1]**2 + esense_data[:, 2]**2 + esense_data[:, 3]**2)
+#    pwr_wrist_acc = np.sqrt(wrist_acc_data[:, 1]**2 + wrist_acc_data[:, 2]**2 + wrist_acc_data[:, 3]**2)
+#    f, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
+#    ax1.plot(wrist_acc_data[:, 0], pwr_wrist_acc, linewidth=4)
+#    ax1.set_title('Wrist Accelerometer Magnitude')
+#    ax1.ticklabel_format(useOffset=False)
+#    ax2.plot(esense_data[:, 0], pwr_esense, linewidth=4)
+#    ax2.set_title('Esense Accelerometer Magnitude')
+#    ax2.ticklabel_format(useOffset=False)
+#    ax3.plot(audio_data[:, 0], audio_data[:, 1], linewidth=4)
+#    ax3.set_title('Audio Data')
+#    ax3.ticklabel_format(useOffset=False)
+#    ax3.set_xlabel("TimeStamp")
+
+
     
-def pass_test(arr):
-    arr = arr[1000:, :]
+    return (esense_data, wrist_acc_data, wrist_gyro_data, audio_data)
 
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
     training_data = []
     for f in os.walk(os.getcwd()):
-        if ("Official_Data_Eating_Drinking_1" in f[0]):
+        if ("Clap_Test" in f[0]):
             folder = f[0] + "/"
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
-            wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME) 
+            wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME)  
             fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
+            
             activities = load_activities(folder + MARKER_FILE_NAME)
             
             (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
