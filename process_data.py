@@ -166,17 +166,17 @@ def load_esense(data_file):
 
 def mfcc_audio(audio_data):
     mfcc = librosa.feature.mfcc(audio_data, n_mfcc=MFCC_NUM, sr=AUDIO_SAMPLE_RATE)
-
-    # If maximum length exceeds mfcc lengths then pad the remaining ones
-    if (MFCC_MAX_LEN > mfcc.shape[1]):
-        pad_width = MFCC_MAX_LEN - mfcc.shape[1]
-        mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
-
-    # Else cutoff the remaining parts
-    else:
-        mfcc = mfcc[:, :MFCC_MAX_LEN]
-    
     return mfcc
+    # If maximum length exceeds mfcc lengths then pad the remaining ones
+#    if (MFCC_MAX_LEN > mfcc.shape[1]):
+#        pad_width = MFCC_MAX_LEN - mfcc.shape[1]
+#        mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
+#
+#    # Else cutoff the remaining parts
+#    else:
+#        mfcc = mfcc[:, :MFCC_MAX_LEN]
+#    
+#    return mfcc
 
 def load_audio(audio_file): 
     data, fs = librosa.load(audio_file, sr=AUDIO_SAMPLE_RATE)
@@ -290,6 +290,8 @@ if __name__=="__main__":
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME)  
             fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
+        
+            
             
             activities = load_activities(folder + MARKER_FILE_NAME)
             
