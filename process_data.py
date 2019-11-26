@@ -283,9 +283,9 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
     training_data = []
-    for f in os.walk(os.getcwd() + "\\Training_Data\\"):
+    for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
         if ("Data" in f[0]):
-            folder = f[0] + "\\"
+            folder = f[0] + os.path.sep
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME)  
