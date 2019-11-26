@@ -40,10 +40,10 @@ plt.style.use('seaborn-whitegrid')
 
 ACTIVITIES = {
               "Other": 0,
-              "Eating chips": 1,
+              "Eating": 1,
               "Drinking": 2,
               "Smoking": 3,
-              "Head scratch": 4
+              "Head Scratch": 4
               }
 
 def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activity_data):
@@ -264,14 +264,14 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
 #    
 #    pwr_esense = np.sqrt(esense_data[:, 1]**2 + esense_data[:, 2]**2 + esense_data[:, 3]**2)
 #    pwr_wrist_acc = np.sqrt(wrist_acc_data[:, 1]**2 + wrist_acc_data[:, 2]**2 + wrist_acc_data[:, 3]**2)
-#    f, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
-#    ax1.plot(wrist_acc_data[:, 0], pwr_wrist_acc, linewidth=4)
+#    f, (ax1, ax2, ax3) = plt.subplots(3, 1)
+#    ax1.plot(wrist_acc_data[:, 0], pwr_wrist_acc, linewidth=2)
 #    ax1.set_title('Wrist Accelerometer Magnitude')
 #    ax1.ticklabel_format(useOffset=False)
-#    ax2.plot(esense_data[:, 0], pwr_esense, linewidth=4)
+#    ax2.plot(esense_data[:, 0], pwr_esense, linewidth=2)
 #    ax2.set_title('Esense Accelerometer Magnitude')
 #    ax2.ticklabel_format(useOffset=False)
-#    ax3.plot(audio_data[:, 0], audio_data[:, 1], linewidth=4)
+#    ax3.plot(audio_data[:, 0], audio_data[:, 1], linewidth=2)
 #    ax3.set_title('Audio Data')
 #    ax3.ticklabel_format(useOffset=False)
 #    ax3.set_xlabel("TimeStamp")
@@ -283,16 +283,14 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
     training_data = []
-    for f in os.walk(os.getcwd()):
-        if ("Clap_Test" in f[0]):
-            folder = f[0] + "/"
+    for f in os.walk(os.getcwd() + "\\Training_Data\\"):
+        if ("Data" in f[0]):
+            folder = f[0] + "\\"
             esense_data = load_esense(folder + ESENSE_FILE_NAME)
             wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
             wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME)  
             fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
         
-            
-            
             activities = load_activities(folder + MARKER_FILE_NAME)
             
             (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
