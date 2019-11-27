@@ -7,6 +7,10 @@ Created on Wed Nov  6 18:22:33 2019
 import pandas as pd
 from Features import *
 
+ESENSE_SAMPLE_RATE = 10 # Esense Sampling Rate (Approx)
+WRIST_SAMPLE_RATE = 20 # Wrist Sampling Rate (Approx)
+IMU_BINS = 10 # Number of Frequency bins for fft audio
+
 class Activity():
     
     def __init__(self, label, esense_data, wrist_acc_data, wrist_gyro_data, audio_data):
@@ -15,6 +19,7 @@ class Activity():
         self.wrist_acc_data = wrist_acc_data
         self.wrist_gyro_data = wrist_gyro_data
         self.audio_data = audio_data
+        #self.audio_data = audio_data
     
     def calcFeaturesToABT(self, df, columns):
     	df2 = pd.DataFrame(data =[self.calculateFeatures()], columns = columns)
@@ -39,7 +44,25 @@ class Activity():
         features.append(self.label)
 
         return features
+    
+#        # Returns esense fft in form of a list(acc_x, acc_y, acc_z). Other lists are the same format
+#        esense_acc_fft = imu_fft(self.esense_acc(), ESENSE_SAMPLE_RATE, IMU_BINS)
+#        esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)    
+#        wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
+#        wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
+        
+#    # Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
+#        mfcc = mfcc_audio(self.audio_data[:, 1])
 
+
+    def esense_acc(self):
+        return self.esense_data[:, 1:4]
+    def esense_gyro(self):
+        return self.esense_data[:, 4:]
+    def wrist_acc(self):
+        return self.wrist_acc_data[:, 1:]
+    def wrist_gyro(self):
+        return self.wrist_gyro_data[:, 1:]
 
     def esense_acc_x(self):
         return self.esense_data[:, 1]

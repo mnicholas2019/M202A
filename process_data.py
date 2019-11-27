@@ -11,10 +11,9 @@ import os
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.fftpack import fft
-from scipy.stats import binned_statistic
 from Training import Activity
 import pandas as pd
+from scipy import signal
 
 ACCEL_FILE_NAME = "ACCELEROMETER--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
 GYRO_FILE_NAME = "GYROSCOPE--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
@@ -28,8 +27,7 @@ ESENSE_SAMPLE_RATE = 20
 WRIST_SAMPLE_RATE = 2000
 
 AUDIO_SAMPLE_RATE = 8000 
-MFCC_NUM = 20
-MFCC_MAX_LEN = 2000
+MFCC_NUM = 12
 AUDIO_MAX_FREQ = 2000 # Maximum audio frequency to analyze
 AUDIO_BINS = 100 # Number of Frequency bins for fft audio
 
@@ -62,19 +60,20 @@ def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio
             
             esense_trimmed = esense_data[np.logical_and(esense_data[:, 0] >= start,  esense_data[:, 0] <= end)]
             
-            
-            
             wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
             wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
             audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
             
-            audio_fft = binned_audio_fft(audio_trimmed[:, 1], AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
+            #audio_fft = binned_fft(audio_trimmed[:, 1], AUDIO_SAMPLE_RATE, AUDIO_MAX_FREQ, AUDIO_BINS)
+            
+            #fs_esense = esense_trimmed.shape[0] / WINDOW_LENGTH
+            #fs_wrist = wrist_acc_trimmed.shape[0] / WINDOW_LENGTH
         
             training_activities.append(Activity(label, 
                                                 esense_trimmed,  
                                                 wrist_acc_trimmed,
                                                 wrist_gyro_trimmed,
-                                                audio_fft[1]
+                                                audio_trimmed
                                                 ))
             start += STRIDE_LENGTH
     print(num_activities)
@@ -164,37 +163,10 @@ def load_esense(data_file):
     
     return data
 
-def mfcc_audio(audio_data):
-    mfcc = librosa.feature.mfcc(audio_data, n_mfcc=MFCC_NUM, sr=AUDIO_SAMPLE_RATE)
-    return mfcc
-    # If maximum length exceeds mfcc lengths then pad the remaining ones
-#    if (MFCC_MAX_LEN > mfcc.shape[1]):
-#        pad_width = MFCC_MAX_LEN - mfcc.shape[1]
-#        mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
-#
-#    # Else cutoff the remaining parts
-#    else:
-#        mfcc = mfcc[:, :MFCC_MAX_LEN]
-#    
-#    return mfcc
-
 def load_audio(audio_file): 
     data, fs = librosa.load(audio_file, sr=AUDIO_SAMPLE_RATE)
     #fs, data = wavfile.read(audio_file)
     return fs, data
-
-def binned_audio_fft(data, fs, fmax, num_bins):
-    T = 1.0 / fs
-    N = data.shape[0]
-    raw_fft = fft(data)
-    x_fft = np.linspace(0.0, 1.0/(2.0*T), N//2)
-    data_fft = 2.0/N * np.abs(raw_fft[0:N//2])
-    
-    bin_means, bin_edges, bin_number = binned_statistic(x_fft, data_fft, bins=num_bins, range=(0, 2000))
-    #plt.plot(x_fft, data_fft)
-    #plt.plot(bin_edges[:-1], bin_means)
-    return (bin_edges, bin_means)
-    
     
 def activity_name(label):
     for act, num in ACTIVITIES.items():
@@ -282,47 +254,62 @@ def sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs):
 
 if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
-    training_data = []
-    for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
-        if ("Data" in f[0]):
-            folder = f[0] + os.path.sep
-            esense_data = load_esense(folder + ESENSE_FILE_NAME)
-            wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
-            wrist_gryo_data = load_wrist(folder + GYRO_FILE_NAME)  
-            fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
-        
-            activities = load_activities(folder + MARKER_FILE_NAME)
+    
+    recalculate = True
+    
+    if recalculate:
+        training_data = []
+        for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
+            if ("Data" in f[0]):
+                folder = f[0] + os.path.sep
+                esense_data = load_esense(folder + ESENSE_FILE_NAME)
+                wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
+                wrist_gyro_data = load_wrist(folder + GYRO_FILE_NAME)  
+                fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
             
-            (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
-                 sync_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, fs)
-            
-            training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
+                activities = load_activities(folder + MARKER_FILE_NAME)
+                
 
-    print('\n\n\n\:driver code:')
-
-    data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
-                    'esense gyro x','esense gyro y','esense gyro z',
-                    'wrist acc x', 'wrist acc y', 'wrist acc z',
-                    'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
-    features = ['mean ', 'stdev ', 'range ', 'variance ']
-    columns = []
-    for data in data_streams:
-        for feature in features:
-            columns.append(feature + data)
-    columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
-    columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
-    columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
-    columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
-    columns.append('label')
-    #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
-    df = pd.DataFrame(columns = columns)
-    #print(df)
-
-    for activity in training_data:
-        df = activity.calcFeaturesToABT(df, columns)
-
-    ### Save Dataframe to serialized file
-    df.to_pickle("model_data/dataframe.pkl")
-    ### Save Dataframe to serialized file
-    df_loaded = pd.read_pickle("model_data/dataframe.pkl")
-    print(df_loaded)
+                
+                (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
+                     sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs)
+                     
+                fs_esense = esense_data.shape[0] / ((esense_data[:, 0][-1] - esense_data[:, 0][0]) / 1000);
+                fs_wrist = wrist_acc_data.shape[0] / ((wrist_acc_data[:, 0][-1] - wrist_acc_data[:, 0][0]) / 1000);
+                esense_fft = binned_fft(wrist_acc_data[:, 1], 20, 40, 10)
+                print (esense_fft)
+                x = np.linspace(1, 40, 10)
+                plt.plot(x, esense_fft[1])
+                #print ("Esense Sampling Frequency: {}".format(fs_esense))
+                #print ("Wrist Sampling Frequency: {}".format(fs_wrist))
+                
+#                training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
+#    
+#        print('\n\n\n\:driver code:')
+#    
+#        data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
+#                        'esense gyro x','esense gyro y','esense gyro z',
+#                        'wrist acc x', 'wrist acc y', 'wrist acc z',
+#                        'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
+#        features = ['mean ', 'stdev ', 'range ', 'variance ']
+#        columns = []
+#        for data in data_streams:
+#            for feature in features:
+#                columns.append(feature + data)
+#        columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
+#        columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
+#        columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
+#        columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
+#        columns.append('label')
+#        #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
+#        df = pd.DataFrame(columns = columns)
+#        #print(df)
+#    
+#        for activity in training_data:
+#            df = activity.calcFeaturesToABT(df, columns)
+#    
+#        ### Save Dataframe to serialized file
+#        df.to_pickle("model_data/dataframe.pkl")
+#    ### Save Dataframe to serialized file
+#    df_loaded = pd.read_pickle("model_data/dataframe.pkl")
+#    print(df_loaded)
