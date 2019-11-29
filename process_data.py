@@ -41,7 +41,8 @@ ACTIVITIES = {
               "Eating": 1,
               "Drinking": 2,
               "Smoking": 3,
-              "Head Scratch": 4
+              "Head Scratch": 4,
+              "Walking": 5
               }
 
 def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activity_data):
@@ -314,13 +315,23 @@ if __name__=="__main__":
                 df.to_pickle("model_data/dataframe.pkl")
             else:
                 model_input = []
+                labels = []
                 for activity in training_data:
                     model_input.append(activity.calculateFeatures(0))
-
+                    labels.append(activity.label)
+                    
     model_input = np.array(model_input)
-    print("shape:",model_input.shape)
+    print("input shape:",model_input.shape)
+
+    target = np.zeros((model_input.shape[0], 6))
+    for i, label in enumerate(labels):
+        target[i][label] = 1
+        if label > 5  or label < 0:
+            print("incorrect label: ", label)
     #np.savetxt("model_data/dataframeNP.txt", model_input, fmt = '%f')
+    print("target shape:", target.shape)
     np.save("model_data/dataframeNP.npy", model_input)
+    np.save("model_data/targetNP.npy", target)
     
 
 

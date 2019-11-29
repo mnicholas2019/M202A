@@ -67,10 +67,10 @@ def get_details(name):
         dimensions = []
         path = './Motionsense'
     elif (name == 'M202A Project'):
-        num_classes = 5
+        num_classes = 6
         sensors = ['acc', 'gyro', 'microphone']
         locations = ['right_wrist', 'ears']
-        label_names = ['eating', 'head_scratch', 'drinking', 'smoking', 'other']
+        label_names = ['eating', 'head_scratch', 'drinking', 'smoking', 'walking', 'other']
         f_hz = 'n/a'
         dimensions = []
         path = './model_data/'
@@ -153,9 +153,10 @@ def load_dataset(name, path, num_classes):
         y_val_binary = keras.utils.to_categorical(y_val, num_classes)
 
     elif (name == 'M202A Project'):
-        df = pd.read_pickle(path + "dataframe.pkl")
-        target = df['label']
-        data = df.drop(columns = ['label'])
+        data = np.load(path + "dataframeNP.npy")
+        target = np.load(path + "targetNP.npy")
+        
+        
 
         x_train = data
         x_val = data

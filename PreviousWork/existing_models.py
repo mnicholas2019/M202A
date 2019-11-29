@@ -25,6 +25,12 @@ def reshape_data(X_tr, X_va, X_tst, network_type):
         X_va = np.reshape(X_va, (-1, dim * win_len))
         X_tst = np.reshape(X_tst, (-1, dim * win_len))
 
+    elif network_type == 'M202A_CNN':
+        num_inputs, num_streams, num_features = X_tr.shape
+        X_tr = np.reshape(X_tr, (-1, num_streams, num_features, 1))
+        X_va = np.reshape(X_va, (-1, num_streams, num_features, 1))
+        X_tst = np.reshape(X_tst, (-1, num_streams, num_features, 1))
+
     return X_tr, X_va, X_tst
 
 
@@ -49,39 +55,23 @@ def model_MLP(dim, win_len, num_classes, num_hidden_mlp=256, p=0.3, batchnorm=Tr
 
 def model_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, dropout=True):
     model = Sequential(name='CNN')
-    #model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
-    #                 activation='relu',
-    #                 input_shape=(dim, win_len, 1),
-    #                 padding='same', name='Conv_1'))
-    model.add(Conv1D(num_feat_map, kernel_size=1,
+    model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
                      activation='relu',
-                     input_shape=(dim, win_len),
+                     input_shape=(dim, win_len, 1),
                      padding='same', name='Conv_1'))
-
     if batchnorm:
         model.add(BatchNormalization(name='Bn_1'))
-
-    #model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
-    model.add(MaxPooling1D(pool_size=2, name='Max_pool_1'))
-
+    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
     if dropout:
         model.add(Dropout(p, name='Drop_1'))
-
-    #model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
-    #                 activation='relu', padding='same', name='Conv_2'))
-    model.add(Conv1D(num_feat_map, kernel_size=1,
+    model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
                      activation='relu', padding='same', name='Conv_2'))
     if batchnorm:
         model.add(BatchNormalization(name='Bn_2'))
-
-    #model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_2'))
-    model.add(MaxPooling1D(pool_size=2, name='Max_pool_2'))
-
+    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_2'))
     if dropout:
         model.add(Dropout(p, name='Drop_2'))
-
     model.add(Flatten(name='Flatten_1'))
-
     model.add(Dense(32, activation='relu'))
     if batchnorm:
         model.add(BatchNormalization(name='Bn_3'))
@@ -89,6 +79,7 @@ def model_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, 
         model.add(Dropout(p, name='Drop_3'))
     model.add(Dense(num_classes, activation='softmax', name='dense_out'))
     return model
+
 
 
 def model_LSTM(dim, win_len, num_classes, num_hidden_lstm=32, p=0.3, batchnorm=True, dropout=True):
