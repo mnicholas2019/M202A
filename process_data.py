@@ -256,7 +256,8 @@ if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
     
     recalculate = True
-    
+    ABT = 0
+
     if recalculate:
         training_data = []
         for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
@@ -274,42 +275,56 @@ if __name__=="__main__":
                 (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
                      sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs)
                      
-                fs_esense = esense_data.shape[0] / ((esense_data[:, 0][-1] - esense_data[:, 0][0]) / 1000);
-                fs_wrist = wrist_acc_data.shape[0] / ((wrist_acc_data[:, 0][-1] - wrist_acc_data[:, 0][0]) / 1000);
-                esense_fft = binned_fft(wrist_acc_data[:, 1], 20, 40, 10)
-                print (esense_fft)
-                x = np.linspace(1, 40, 10)
-                plt.plot(x, esense_fft[1])
+                # fs_esense = esense_data.shape[0] / ((esense_data[:, 0][-1] - esense_data[:, 0][0]) / 1000);
+                # fs_wrist = wrist_acc_data.shape[0] / ((wrist_acc_data[:, 0][-1] - wrist_acc_data[:, 0][0]) / 1000);
+                # esense_fft = binned_fft(wrist_acc_data[:, 1], 20, 40, 10)
+                # print (esense_fft)
+                # x = np.linspace(1, 40, 10)
+                # plt.plot(x, esense_fft[1])
                 #print ("Esense Sampling Frequency: {}".format(fs_esense))
                 #print ("Wrist Sampling Frequency: {}".format(fs_wrist))
                 
-#                training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
-#    
-#        print('\n\n\n\:driver code:')
-#    
-#        data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
-#                        'esense gyro x','esense gyro y','esense gyro z',
-#                        'wrist acc x', 'wrist acc y', 'wrist acc z',
-#                        'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
-#        features = ['mean ', 'stdev ', 'range ', 'variance ']
-#        columns = []
-#        for data in data_streams:
-#            for feature in features:
-#                columns.append(feature + data)
-#        columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
-#        columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
-#        columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
-#        columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
-#        columns.append('label')
-#        #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
-#        df = pd.DataFrame(columns = columns)
-#        #print(df)
-#    
-#        for activity in training_data:
-#            df = activity.calcFeaturesToABT(df, columns)
-#    
-#        ### Save Dataframe to serialized file
-#        df.to_pickle("model_data/dataframe.pkl")
-#    ### Save Dataframe to serialized file
-#    df_loaded = pd.read_pickle("model_data/dataframe.pkl")
-#    print(df_loaded)
+                training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
+
+            print('\n\n\n\:driver code:')
+
+            if ABT:
+                data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
+                               'esense gyro x','esense gyro y','esense gyro z',
+                               'wrist acc x', 'wrist acc y', 'wrist acc z',
+                               'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
+                features = ['mean ', 'stdev ', 'range ', 'variance ']
+                columns = []
+                for data in data_streams:
+                    for feature in features:
+                        columns.append(feature + data)
+                columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
+                columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
+                columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
+                columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
+                columns.append('label')
+                #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
+                df = pd.DataFrame(columns = columns)
+                #print(df)
+           
+                for activity in training_data:
+                    df = activity.calcFeaturesToABT(df, columns)
+           
+                ### Save Dataframe to serialized file
+                df.to_pickle("model_data/dataframe.pkl")
+            else:
+                model_input = []
+                for activity in training_data:
+                    model_input.append(activity.calculateFeatures(0))
+
+    model_input = np.array(model_input)
+    print("shape:",model_input.shape)
+    #np.savetxt("model_data/dataframeNP.txt", model_input, fmt = '%f')
+    np.save("model_data/dataframeNP.npy", model_input)
+    
+
+
+    
+
+    #df_loaded = pd.read_pickle("model_data/dataframe.pkl")
+    #print(df_loaded)

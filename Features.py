@@ -12,24 +12,24 @@ def mean(data):
     return np.mean(data)
 
 def stdev(data):
-	return np.std(data)
+    return np.std(data)
 
 def range(data):
-	return np.max(data) - np.min(data)
+    return np.max(data) - np.min(data)
 
 def variance(data):
-	return np.var(data)
+    return np.var(data)
 
 def correlations(data1, data2, data3):
-	coef = np.corrcoef([data1,data2,data3])
+    coef = np.corrcoef([data1,data2,data3])
     return [coef[1,0], coef[2,0], coef[1,2]]
 
 
 # FFT of 3-Axis Sensor. Use Nyquist Sampling Theorem so fmax = 2*fs
-def imu_fft(data, fs, num_bins)
+def imu_fft(data, fs, num_bins):
     imu_fft_out = (binned_fft(data[:, 1], fs, 2*fs, num_bins)[1], 
                   (binned_fft(data[:, 2], fs, 2*fs, num_bins)[1], 
-                  (binned_fft(data[:, 3], fs, 2*fs, num_bins)[1])
+                  (binned_fft(data[:, 3], fs, 2*fs, num_bins)[1])))
         
     return imu_fft_out
 
