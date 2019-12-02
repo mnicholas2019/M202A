@@ -36,7 +36,7 @@ class Activity():
             for d_stream in data_streams:
                 features.append(mean(d_stream))
                 features.append(stdev(d_stream))
-                features.append(range(d_stream))
+                features.append(difference(d_stream))
                 features.append(variance(d_stream))
             features = features + correlations(data_streams[0], data_streams[1], data_streams[2])
             features = features + correlations(data_streams[3], data_streams[4], data_streams[5])
@@ -57,7 +57,7 @@ class Activity():
                 stream_data = []
                 stream_data.append(mean(d_stream))
                 stream_data.append(stdev(d_stream))
-                stream_data.append(range(d_stream))
+                stream_data.append(difference(d_stream))
                 stream_data.append(variance(d_stream))
                 if i < 3:
                     corr = correlations(data_streams[0], data_streams[1], data_streams[2])

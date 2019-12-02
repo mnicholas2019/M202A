@@ -319,7 +319,7 @@ if __name__=="__main__":
                 for activity in training_data:
                     model_input.append(activity.calculateFeatures(0))
                     labels.append(activity.label)
-                    print("done with a loop")
+                    
                     
     model_input = np.array(model_input)
     print("input shape:",model_input.shape)

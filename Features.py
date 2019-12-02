@@ -18,7 +18,7 @@ def mean(data):
 def stdev(data):
     return np.std(data)
 
-def range(data):
+def difference(data):
     return np.max(data) - np.min(data)
 
 def variance(data):
