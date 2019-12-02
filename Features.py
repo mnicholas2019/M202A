@@ -5,8 +5,12 @@ Created on Wed Nov 20 19:13:14 2019
 @author: aidan
 """
 import numpy as np
+import librosa
 from scipy.fftpack import fft
 from scipy.stats import binned_statistic
+
+MFCC_NUM = 12
+AUDIO_SAMPLE_RATE = 8000 
 
 def mean(data):
     return np.mean(data)
@@ -27,9 +31,9 @@ def correlations(data1, data2, data3):
 
 # FFT of 3-Axis Sensor. Use Nyquist Sampling Theorem so fmax = 2*fs
 def imu_fft(data, fs, num_bins):
-    imu_fft_out = (binned_fft(data[:, 1], fs, 2*fs, num_bins)[1], 
-                  (binned_fft(data[:, 2], fs, 2*fs, num_bins)[1], 
-                  (binned_fft(data[:, 3], fs, 2*fs, num_bins)[1])))
+    imu_fft_out = (binned_fft(data[:, 0], fs, 2*fs, num_bins)[1], 
+                  (binned_fft(data[:, 1], fs, 2*fs, num_bins)[1], 
+                  (binned_fft(data[:, 2], fs, 2*fs, num_bins)[1])))
         
     return imu_fft_out
 

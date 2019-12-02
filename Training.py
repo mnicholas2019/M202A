@@ -75,16 +75,18 @@ class Activity():
                     stream_data.append(corr[1])
 
                 window_calc.append(stream_data)
-            return window_calc
     
-#        # Returns esense fft in form of a list(acc_x, acc_y, acc_z). Other lists are the same format
-#        esense_acc_fft = imu_fft(self.esense_acc(), ESENSE_SAMPLE_RATE, IMU_BINS)
-#        esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)    
-#        wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
-#        wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
+        # Returns esense fft in form of a list(acc_x, acc_y, acc_z). Other lists are the same format
+        esense_acc_fft = imu_fft(self.esense_acc(), ESENSE_SAMPLE_RATE, IMU_BINS)
+        esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)    
+        wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
+        wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
+        return window_calc
         
-#    # Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
-#        mfcc = mfcc_audio(self.audio_data[:, 1])
+        # Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
+        #mfcc = mfcc_audio(self.audio_data[:, 1])
+        #print("we are here", mfcc)
+        
 
 
     def esense_acc(self):
