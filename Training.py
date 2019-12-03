@@ -96,11 +96,13 @@ class Activity():
             tester = np.concatenate((window_calc, fft), axis = 1)
             #print ("\n\ntester", tester)
             #print("\n\nshape: ", tester.shape)
+            
+            mfcc = mfcc_audio(self.audio_data[:, 1])
 
             return tester
         
         # Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
-        #mfcc = mfcc_audio(self.audio_data[:, 1])
+        #
         #print("we are here", mfcc)
         
 
