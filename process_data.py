@@ -257,7 +257,7 @@ if __name__=="__main__":
     #folder = os.getcwd() + '\\First_Data\\'
     
     recalculate = True
-    ABT = 0
+    ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
     if recalculate:
         training_data = []
@@ -289,6 +289,8 @@ if __name__=="__main__":
 
             print('\n\n\n\:driver code:')
 
+
+
             if ABT:
                 data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
                                'esense gyro x','esense gyro y','esense gyro z',
@@ -313,26 +315,25 @@ if __name__=="__main__":
            
                 ### Save Dataframe to serialized file
                 df.to_pickle("model_data/dataframe.pkl")
+
+
             else:
                 model_input = []
                 labels = []
                 for activity in training_data:
                     model_input.append(activity.calculateFeatures(0))
                     labels.append(activity.label)
-                    
-                    
-    model_input = np.array(model_input)
-    print("input shape:",model_input.shape)
 
-    target = np.zeros((model_input.shape[0], 6))
-    for i, label in enumerate(labels):
-        target[i][label] = 1
-        if label > 5  or label < 0:
-            print("incorrect label: ", label)
-    #np.savetxt("model_data/dataframeNP.txt", model_input, fmt = '%f')
-    print("target shape:", target.shape)
-    np.save("model_data/dataframeNP.npy", model_input)
-    np.save("model_data/targetNP.npy", target)
+    if not ABT:             
+        model_input = np.array(model_input)
+        target = np.zeros((model_input.shape[0], 6))
+        print("model input shape: ", model_input.shape)
+        for i, label in enumerate(labels):
+            target[i][label] = 1
+            if label > 5  or label < 0:
+                print("incorrect label: ", label)
+        np.save("model_fft_data/dataframeNP.npy", model_input)
+        np.save("model_fft_data/targetNP.npy", target)
     
 
 

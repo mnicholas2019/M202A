@@ -6,6 +6,7 @@ Created on Wed Nov  6 18:22:33 2019
 """
 import pandas as pd
 from Features import *
+import numpy as np
 
 ESENSE_SAMPLE_RATE = 10 # Esense Sampling Rate (Approx)
 WRIST_SAMPLE_RATE = 20 # Wrist Sampling Rate (Approx)
@@ -76,12 +77,27 @@ class Activity():
 
                 window_calc.append(stream_data)
     
-        # Returns esense fft in form of a list(acc_x, acc_y, acc_z). Other lists are the same format
-        esense_acc_fft = imu_fft(self.esense_acc(), ESENSE_SAMPLE_RATE, IMU_BINS)
-        esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)    
-        wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
-        wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
-        return window_calc
+            # Returns esense fft in form of a list(acc_x, acc_y, acc_z). Other lists are the same format
+            fft = []
+            esense_acc_fft = imu_fft(self.esense_acc(), ESENSE_SAMPLE_RATE, IMU_BINS)
+            esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)
+            wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
+            wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
+            
+
+            fft = [esense_acc_fft[0][0:3].tolist(), esense_acc_fft[1][0:3].tolist(), esense_acc_fft[2][0:3].tolist(),
+                   esense_gyro_fft[0][0:3].tolist(), esense_gyro_fft[1][0:3].tolist(), esense_gyro_fft[2][0:3].tolist(),
+                   wrist_acc_fft[0][0:3].tolist(), wrist_acc_fft[1][0:3].tolist(), wrist_acc_fft[2][0:3].tolist(),
+                   wrist_gyro_fft[0][0:3].tolist(), wrist_gyro_fft[1][0:3].tolist(), wrist_gyro_fft[2][0:3].tolist()]
+
+            #print("\n\nFFT:\n ", fft)
+            #print("\n\nwindow: ", window_calc)
+
+            tester = np.concatenate((window_calc, fft), axis = 1)
+            #print ("\n\ntester", tester)
+            #print("\n\nshape: ", tester.shape)
+
+            return tester
         
         # Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
         #mfcc = mfcc_audio(self.audio_data[:, 1])

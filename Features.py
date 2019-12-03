@@ -32,8 +32,8 @@ def correlations(data1, data2, data3):
 # FFT of 3-Axis Sensor. Use Nyquist Sampling Theorem so fmax = 2*fs
 def imu_fft(data, fs, num_bins):
     imu_fft_out = (binned_fft(data[:, 0], fs, 2*fs, num_bins)[1], 
-                  (binned_fft(data[:, 1], fs, 2*fs, num_bins)[1], 
-                  (binned_fft(data[:, 2], fs, 2*fs, num_bins)[1])))
+                   binned_fft(data[:, 1], fs, 2*fs, num_bins)[1], 
+                   binned_fft(data[:, 2], fs, 2*fs, num_bins)[1])
         
     return imu_fft_out
 
