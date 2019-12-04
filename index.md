@@ -5,6 +5,8 @@
 
  The goal of our project is to utilize the eSense in-ear wearable device and other wearable devices, such as a  "smart" wrist band, to classify and detect the following set of user activities:
 
+***THIS IS A TEST***
+
 ## Features:
   * Eating
   * Drinking
