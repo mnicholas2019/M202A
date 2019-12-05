@@ -126,22 +126,15 @@ class Activity():
                    wrist_acc_fft[0][0:3].tolist(), wrist_acc_fft[1][0:3].tolist(), wrist_acc_fft[2][0:3].tolist(),
                    wrist_gyro_fft[0][0:3].tolist(), wrist_gyro_fft[1][0:3].tolist(), wrist_gyro_fft[2][0:3].tolist()]
 
-            #print("\n\nFFT:\n ", fft)
-            #print(np.any(np.isnan(fft)))
-            # print("\n\nwindow\n: ", window_calc)
+
 
             window_calc = np.concatenate((window_calc, fft), axis = 1)
             window_calc = np.nan_to_num(window_calc)
-            #print ("\n\nfull concat", window_calc)
-            #print("\n\nshape: ", window_calc.shape)
-            #mfcc = mfcc_audio(np.asfortranarray(self.audio_data[:, 1]))
-            #print("mfcc: ", mfcc)
-            #print("\n\nnumber:", esense_acc_fft[0][0])
+            mfcc = mfcc_audio(self.audio_data[:, 1])
             return window_calc
         
-        #Returns 12x16 mfcc (12 coefficients, 512ms windows (hop_length)). (WINDOW_LENGTH) * SAMPLING_FREQUENCY / HOP_LENGTH = columns of mfcc
-        #mfcc = mfcc_audio(self.audio_data[:, 1])
-        #print("we are here", mfcc)
+
+
         
 
 

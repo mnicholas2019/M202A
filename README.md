@@ -5,13 +5,13 @@
 
  The goal of our project is to utilize the eSense in-ear wearable device and other wearable devices, such as a  "smart" wrist band, to classify and detect the following set of user activities:
 
-## Features:
+## Activities:
   * Eating
   * Drinking
-  * Laughing
   * Smoking
-  * Scratching/Touching Face
-  * No Activity (Sitting Still)
+  * Scratching Head
+  * Walking
+  * Other (Doing Nothing) 
 
 ## Past Work
  There are a number of published studies which we can draw from and implement into our final product. Specifically, a lot of research has been put into the best methods for acitivity classifications using IMU data from various sensors. For instance, we will draw heavily from "A Comprehensive Study of Activity Recognition Using Accelerometers", a study carried out by the University of Bristol.(1) We will use this study to help determine the optimal sampling frequency from our imu, which algorithms work best for acitivity classification, determine the window size of our input, etc. 
