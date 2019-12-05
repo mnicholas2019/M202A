@@ -74,7 +74,7 @@ def get_details(name):
         label_names = ['eating', 'head_scratch', 'drinking', 'smoking', 'walking', 'other']
         f_hz = 'n/a'
         dimensions = []
-        path = './model_data/'
+        path = './modelfft_data/'
     else:
         print("No such dataset")
 

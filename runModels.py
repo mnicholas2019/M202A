@@ -16,6 +16,7 @@ num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_detai
 x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
 
 
+
 network_type = 'M202A_CNN'
 X_train, X_val, X_test = reshape_data(x_train0, x_val0, x_test0, network_type)
 
@@ -58,7 +59,9 @@ model = load_model(chk_path)
 
 y_pred = np.argmax(model.predict(X_test), axis=1)
 y_true = np.argmax(y_test_binary, axis=1)
+print(y_pred, y_true)
 cf_matrix = confusion_matrix(y_true, y_pred)
+
 print(cf_matrix)
 class_wise_f1 = f1_score(y_true, y_pred, average=None)
 print('the mean-f1 score: {:.4f}'.format(np.mean(class_wise_f1)))

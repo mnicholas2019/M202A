@@ -296,7 +296,7 @@ if __name__=="__main__":
                                'esense gyro x','esense gyro y','esense gyro z',
                                'wrist acc x', 'wrist acc y', 'wrist acc z',
                                'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
-                features = ['mean ', 'stdev ', 'range ', 'variance ']
+                features = ['mean ', 'stdev ', 'difference ', 'variance ']
                 columns = []
                 for data in data_streams:
                     for feature in features:
@@ -332,9 +332,10 @@ if __name__=="__main__":
             target[i][label] = 1
             if label > 5  or label < 0:
                 print("incorrect label: ", label)
-        np.save("model_fft_data/dataframeNP.npy", model_input)
-        np.save("model_fft_data/targetNP.npy", target)
-    
+        print("targe input shape: ", target.shape)
+        np.save("modelfft_data/dataframeNP.npy", model_input)
+        np.save("modelfft_data/targetNP.npy", target)
+        
 
 
     
