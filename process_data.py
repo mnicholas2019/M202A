@@ -259,13 +259,17 @@ if __name__=="__main__":
     recalculate = True
     ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
+
     if recalculate:
         training_data = []
         # training
         # for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
 
+        # validation
+        # for f in os.walk(os.getcwd() + os.path.sep + "Validation" + os.path.sep):
+
         # test
-        for f in os.walk(os.getcwd() + os.path.sep + "Test" + os.path.sep):
+        # for f in os.walk(os.getcwd() + os.path.sep + "Test" + os.path.sep):
             if ("Data" in f[0]):
                 folder = f[0] + os.path.sep
                 esense_data = load_esense(folder + ESENSE_FILE_NAME)

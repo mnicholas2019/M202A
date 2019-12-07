@@ -162,10 +162,7 @@ def load_dataset(name, path, num_classes):
         x_test = np.load(path + "dataframeTestNP.npy")
         y_test = np.load(path + "targetTestNP.npy")
         
-        print('\n\nshapes!!!')
-        print (x_train.shape, y_train.shape)
-        print (x_val.shape, y_val.shape)
-        print (x_test.shape, y_test.shape)
+        
 
         return x_train, x_val, x_test, y_train, y_val, y_test
 
