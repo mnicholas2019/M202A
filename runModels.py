@@ -62,6 +62,9 @@ y_true = np.argmax(y_test_binary, axis=1)
 print(y_pred, y_true)
 cf_matrix = confusion_matrix(y_true, y_pred)
 
+np.save("Prediction/y_pred.npy", y_pred)
+np.save("Prediction/y_true.npy", y_true)
+
 print(cf_matrix)
 class_wise_f1 = f1_score(y_true, y_pred, average=None)
 print('the mean-f1 score: {:.4f}'.format(np.mean(class_wise_f1)))
