@@ -266,7 +266,7 @@ if __name__=="__main__":
         # for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
 
         # validation
-        # for f in os.walk(os.getcwd() + os.path.sep + "Validation" + os.path.sep):
+        for f in os.walk(os.getcwd() + os.path.sep + "Validation" + os.path.sep):
 
         # test
         # for f in os.walk(os.getcwd() + os.path.sep + "Test" + os.path.sep):
@@ -341,8 +341,8 @@ if __name__=="__main__":
             if label > 5  or label < 0:
                 print("incorrect label: ", label)
         print("targe input shape: ", target.shape)
-        np.save("modelfft_data/dataframeTestNP.npy", model_input)
-        np.save("modelfft_data/targetTestNP.npy", target)
+        np.save("modelfft_data/dataframeValidationNP.npy", model_input)
+        np.save("modelfft_data/targetValidationNP.npy", target)
         
 
 
