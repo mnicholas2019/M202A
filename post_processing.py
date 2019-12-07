@@ -6,6 +6,8 @@ Created on Tue Dec  3 14:08:53 2019
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import butter, lfilter, freqz
+
 
 ACTIVITIES = {
               "Other": 0,
@@ -48,11 +50,51 @@ def remove_single_entries(raw_output, assume_prior=False):
                 #if (raw_output )
     return (out)
 
-def display_results(data1, title1, data2, title2):
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def butter_lpf(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
+def calculate_accuracy(truth, pred):
+    diff = 0
+    for i, v in enumerate(truth):
+        if pred[i] != v:
+            diff += 1
+    return (len(truth) - diff) / float(len(truth))
+
+def filter_bilateral(data, min_length):
+    new_data = data.copy()
+    for i in range(len(data)):
+        y = data[i]
+        i_l = i
+        i_r = i
+        while (i_l >= 0 and data[i_l] == y):
+            i_l -= 1
+        while (i_r < len(data) and data[i_r] == y):
+            i_r += 1
+       # print (i, ", ", i_r - i_l)
+        if (i_r - i_l < min_length):
+            #print ("\nChanged")
+            new_data[i_l:i_r] = [y for _ in range(i_r-i_l)]
+
+            
+    return new_data
+
+def display_results(data1, title1, data2, title2, data3=None, title3=None):
+    
+    numplots = 3 if data3.any() != None else 2
     
     x = np.linspace(0, len(data1)-1, len(data1))
 
-    plt.subplot(2, 1, 1)
+    
+    plt.subplot(numplots, 1, 1)
     plt.step(x, data1)
     
     y_ticks = list(ACTIVITIES.keys())
@@ -60,18 +102,37 @@ def display_results(data1, title1, data2, title2):
     plt.yticks(y, y_ticks)
     plt.title(title1)
     
-    plt.subplot(2, 1, 2)  
+    plt.subplot(numplots, 1, 2)  
     plt.step(x, data2)
     
     y_ticks = list(ACTIVITIES.keys())
     y = [0, 1, 2, 3, 4, 5]
     plt.yticks(y, y_ticks)
     plt.title(title2)
+    
+    if (data3.any() != None):
+        plt.subplot(numplots, 1, 3)  
+        plt.step(x, data3)
+        
+        y_ticks = list(ACTIVITIES.keys())
+        y = [0, 1, 2, 3, 4, 5]
+        plt.yticks(y, y_ticks)
+        plt.title(title3)
 
     plt.show()
 
 
 if __name__== "__main__":
-    out = filter_by_min_length(test_y, 3)
-   # out = remove_single_entries(test_y)
-    display_results(test_y,"Raw Data", out, "Smoothed Data")
+    
+    y_pred = np.load("Prediction\\y_pred.npy")
+    y_true = np.load("Prediction\\y_true.npy")
+    print ("Initial Accuracy: ", str(calculate_accuracy(y_true, y_pred)))
+    #out = filter_by_min_length(test_y, 3)
+    #for i in range(50):
+       # y_pred_smooth = filter_bilateral(y_pred, 50)#filter_by_min_length(y_pred, 5)#remove_single_entries(y_pred)
+    y_pred_cont = butter_lpf(y_pred, .25, 10)
+    y_pred_smooth = np.rint(y_pred_cont)
+    display_results(y_pred,"Raw Data", y_true, "Continuous", y_pred_smooth, "Smoothed Data")
+    
+    print ("Single Smoothed Accuracy: ", str(calculate_accuracy(y_true, y_pred_smooth)))
+
