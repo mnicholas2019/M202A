@@ -27,7 +27,7 @@ model = model_CNN(num_streams, num_features, num_classes, num_feat_map=32, p=0.3
 print(model.summary())
 
 print('model training ...')
-epochs = 20
+epochs = 40
 model.compile(loss=tensorflow.keras.losses.categorical_crossentropy,
               optimizer='adam',
               metrics=['accuracy'])

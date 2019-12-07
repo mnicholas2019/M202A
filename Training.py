@@ -130,7 +130,7 @@ class Activity():
 
             window_calc = np.concatenate((window_calc, fft), axis = 1)
             window_calc = np.nan_to_num(window_calc)
-            mfcc = mfcc_audio(self.audio_data[:, 1])
+            #mfcc = mfcc_audio(self.audio_data[:, 1])
             return window_calc
         
 

@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, LSTM, Dense, Dropout, Flatten, Conv1D, MaxPooling1D
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, LSTM, Dense, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 from tensorflow.keras.layers import BatchNormalization, Permute, Reshape
 
 
@@ -59,6 +59,43 @@ def model_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, 
                      activation='relu',
                      input_shape=(dim, win_len, 1),
                      padding='same', name='Conv_1'))
+    if batchnorm:
+        model.add(BatchNormalization(name='Bn_1'))
+    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
+    if dropout:
+        model.add(Dropout(p, name='Drop_1'))
+    model.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+                     activation='relu', padding='same', name='Conv_2'))
+    if batchnorm:
+        model.add(BatchNormalization(name='Bn_2'))
+    model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_2'))
+    if dropout:
+        model.add(Dropout(p, name='Drop_2'))
+    model.add(Flatten(name='Flatten_1'))
+    model.add(Dense(32, activation='relu'))
+    if batchnorm:
+        model.add(BatchNormalization(name='Bn_3'))
+    if dropout:
+        model.add(Dropout(p, name='Drop_3'))
+    model.add(Dense(num_classes, activation='softmax', name='dense_out'))
+    return model
+
+def model_branch_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, dropout=True):
+    #model1 = Sequential(name='CNN')
+    #branch = Sequential(name='CNN')
+    branch = Conv2D(num_feat_map, kernel_size=(1, 3),
+                     activation='relu',
+                     input_shape=(dim, win_len, 1),
+                     padding='same', name='Conv_1')
+
+    model1 = Conv2D(num_feat_map, kernel_size=(1, 3),
+                     activation='relu',
+                     input_shape=(dim, win_len, 1),
+                     padding='same', name='Conv_1')
+
+    model = Sequential(name='CNN')
+    model.add(concatenate([model1, branch]))
+
     if batchnorm:
         model.add(BatchNormalization(name='Bn_1'))
     model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))

@@ -261,7 +261,11 @@ if __name__=="__main__":
 
     if recalculate:
         training_data = []
-        for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
+        # training
+        # for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
+
+        # test
+        for f in os.walk(os.getcwd() + os.path.sep + "Test" + os.path.sep):
             if ("Data" in f[0]):
                 folder = f[0] + os.path.sep
                 esense_data = load_esense(folder + ESENSE_FILE_NAME)
@@ -333,8 +337,8 @@ if __name__=="__main__":
             if label > 5  or label < 0:
                 print("incorrect label: ", label)
         print("targe input shape: ", target.shape)
-        np.save("modelfft_data/dataframeNP.npy", model_input)
-        np.save("modelfft_data/targetNP.npy", target)
+        np.save("modelfft_data/dataframeTestNP.npy", model_input)
+        np.save("modelfft_data/targetTestNP.npy", target)
         
 
 

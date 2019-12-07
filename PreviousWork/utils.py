@@ -157,13 +157,14 @@ def load_dataset(name, path, num_classes):
         data = np.load(path + "dataframeNP.npy")
         target = np.load(path + "targetNP.npy")
         
-        x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.2)
+        x_train, x_val, y_train, y_val = train_test_split(data, target, test_size=0.2)
 
-        x_val = x_test
-        y_val = y_test
+        x_test = np.load(path + "dataframeTestNP.npy")
+        y_test = np.load(path + "targetTestNP.npy")
         
         print('\n\nshapes!!!')
         print (x_train.shape, y_train.shape)
+        print (x_val.shape, y_val.shape)
         print (x_test.shape, y_test.shape)
 
         return x_train, x_val, x_test, y_train, y_val, y_test
