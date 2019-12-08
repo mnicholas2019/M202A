@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from Training import Activity
 import pandas as pd
 from scipy import signal
+from enum import Enum
 
 ACCEL_FILE_NAME = "ACCELEROMETER--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
 GYRO_FILE_NAME = "GYROSCOPE--org.md2k.motionsense--MOTION_SENSE_HRV--RIGHT_WRIST.csv"
@@ -50,6 +51,8 @@ def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio
     num_activities = 0
     for activity in activity_data:
         label = int(activity[0])
+        if (label == 0):
+            continue
         start = activity[1]
         end = activity[2]
         
@@ -259,18 +262,16 @@ if __name__=="__main__":
     recalculate = True
     ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
+    train_val_test = "Training" #"Validation" #"Test"
 
     if recalculate:
         training_data = []
-        # training
-        # for f in os.walk(os.getcwd() + os.path.sep + "Training" + os.path.sep):
 
-        # validation
-        for f in os.walk(os.getcwd() + os.path.sep + "Validation" + os.path.sep):
+        
+        for f in os.walk(os.getcwd() + os.path.sep + train_val_test + os.path.sep):
 
-        # test
-        # for f in os.walk(os.getcwd() + os.path.sep + "Test" + os.path.sep):
             if ("Data" in f[0]):
+                print("doing calculation")
                 folder = f[0] + os.path.sep
                 esense_data = load_esense(folder + ESENSE_FILE_NAME)
                 wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
@@ -295,7 +296,7 @@ if __name__=="__main__":
                 
                 training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
 
-            print('\n\n\n\:driver code:')
+            print('\n\n\n\:driver code: ', f)
 
 
 
@@ -332,7 +333,13 @@ if __name__=="__main__":
                     model_input.append(activity.calculateFeatures(0))
                     labels.append(activity.label)
 
-    if not ABT:             
+    if not ABT:
+        c = 0
+        # for i, input in enumerate(model_input):
+        #     for j, stream in enumerate(input):
+        #         if len(stream )!= 24:
+        #             print ("bad input", i, j, c, len(stream))
+        #             c = c+1
         model_input = np.array(model_input)
         target = np.zeros((model_input.shape[0], 6))
         print("model input shape: ", model_input.shape)
@@ -341,8 +348,8 @@ if __name__=="__main__":
             if label > 5  or label < 0:
                 print("incorrect label: ", label)
         print("targe input shape: ", target.shape)
-        np.save("modelfft_data/dataframeValidationNP.npy", model_input)
-        np.save("modelfft_data/targetValidationNP.npy", target)
+        np.save("noOtherData/dataframe" + train_val_test +  "NP.npy", model_input)
+        np.save("noOtherData/target" + train_val_test + "NP.npy", target)
         
 
 

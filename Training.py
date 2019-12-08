@@ -102,21 +102,7 @@ class Activity():
             esense_gyro_fft = imu_fft(self.esense_gyro(), ESENSE_SAMPLE_RATE, IMU_BINS)
             wrist_acc_fft = imu_fft(self.wrist_acc(), WRIST_SAMPLE_RATE, IMU_BINS)
             wrist_gyro_fft = imu_fft(self.wrist_gyro(), WRIST_SAMPLE_RATE, IMU_BINS)
-            for i in range(3):
-                if not math.isnan(esense_acc_fft[i][3]):
-                    print("not a NANANANAANAN")
-
-            for i in range(3):
-                if not math.isnan(esense_gyro_fft[i][3]):
-                    print("not a NANANANAANAN")
-
-            for i in range(3):
-                if not math.isnan(wrist_acc_fft[i][3]):
-                    print("not a NANANANAANAN")
-
-            for i in range(3):
-                if not math.isnan(wrist_gyro_fft[i][3]):
-                    print("not a NANANANAANAN")
+            
             
             
 
@@ -130,7 +116,13 @@ class Activity():
 
             window_calc = np.concatenate((window_calc, fft), axis = 1)
             window_calc = np.nan_to_num(window_calc)
-            #mfcc = mfcc_audio(self.audio_data[:, 1])
+            #mfcc = mfcc_audio(np.asfortranarray(self.audio_data[:, 1]))
+            #if mfcc.shape[1] != 16:
+            #    zeros = np.zeros((12, 16-mfcc.shape[1]))
+            #    mfcc = np.concatenate((mfcc, zeros), axis=1)
+                
+
+            #window_calc = np.concatenate((window_calc, mfcc), axis = 1)
             return window_calc
         
 

@@ -15,6 +15,7 @@ d_name = 'M202A Project'
 num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_details('M202A Project')
 x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
 
+num_classes = 6 #only for no other
 
 
 network_type = 'M202A_CNN'
@@ -62,8 +63,8 @@ y_true = np.argmax(y_test_binary, axis=1)
 print(y_pred, y_true)
 cf_matrix = confusion_matrix(y_true, y_pred)
 
-np.save("Prediction/y_pred.npy", y_pred)
-np.save("Prediction/y_true.npy", y_true)
+np.save("Prediction/y_pred_with_val_noMFCC.npy", y_pred)
+np.save("Prediction/y_true_with_val_noMFCC.npy", y_true)
 
 print(cf_matrix)
 class_wise_f1 = f1_score(y_true, y_pred, average=None)

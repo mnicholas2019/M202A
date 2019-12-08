@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, LSTM, Dense, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
+from tensorflow.keras.layers import Conv2D, Concatenate, MaxPooling2D, LSTM, Dense, Dropout, Flatten, Conv1D, MaxPooling1D, concatenate
 from tensorflow.keras.layers import BatchNormalization, Permute, Reshape
 
 
@@ -81,21 +81,20 @@ def model_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, 
     return model
 
 def model_branch_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm=True, dropout=True):
-    #model1 = Sequential(name='CNN')
-    #branch = Sequential(name='CNN')
-    branch = Conv2D(num_feat_map, kernel_size=(1, 3),
+    m1 = Sequential(name='CNN')
+    m1.add(Conv2D(num_feat_map, kernel_size=(1, 3),
                      activation='relu',
                      input_shape=(dim, win_len, 1),
-                     padding='same', name='Conv_1')
+                     padding='same', name='Conv_1'))
+    m2 = Sequential(name='CNN')
+    m2.add(Conv2D(num_feat_map, kernel_size=(1, 3),
+                     activation='relu',
+                     input_shape=(dim, win_len, 1),
+                     padding='same', name='Conv_1'))
 
-    model1 = Conv2D(num_feat_map, kernel_size=(1, 3),
-                     activation='relu',
-                     input_shape=(dim, win_len, 1),
-                     padding='same', name='Conv_1')
+    added = keras.layers.Add()([x1, x2])
 
     model = Sequential(name='CNN')
-    model.add(concatenate([model1, branch]))
-
     if batchnorm:
         model.add(BatchNormalization(name='Bn_1'))
     model.add(MaxPooling2D(pool_size=(1, 2), name='Max_pool_1'))
@@ -116,7 +115,6 @@ def model_branch_CNN(dim, win_len, num_classes, num_feat_map=64, p=0., batchnorm
         model.add(Dropout(p, name='Drop_3'))
     model.add(Dense(num_classes, activation='softmax', name='dense_out'))
     return model
-
 
 
 def model_LSTM(dim, win_len, num_classes, num_hidden_lstm=32, p=0.3, batchnorm=True, dropout=True):
