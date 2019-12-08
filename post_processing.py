@@ -120,19 +120,45 @@ def display_results(data1, title1, data2, title2, data3=None, title3=None):
         plt.title(title3)
 
     plt.show()
+    
+def display_results_2(data1, title1, data2, title2):
+    
+    numplots = 2
+    
+    x = np.linspace(0, len(data1)-1, len(data1))
+
+    
+    plt.subplot(numplots, 1, 1)
+    plt.step(x, data1)
+    
+    y_ticks = list(ACTIVITIES.keys())
+    y = [0, 1, 2, 3, 4, 5]
+    plt.yticks(y, y_ticks)
+    plt.title(title1)
+    
+    plt.subplot(numplots, 1, 2)  
+    plt.step(x, data2)
+    
+    y_ticks = list(ACTIVITIES.keys())
+    y = [0, 1, 2, 3, 4, 5]
+    plt.yticks(y, y_ticks)
+    plt.title(title2)
+    
+    plt.show()
 
 
 if __name__== "__main__":
     
-    y_pred = np.load("Prediction\\y_pred.npy")
-    y_true = np.load("Prediction\\y_true.npy")
+    y_pred = np.load("Prediction/y_pred.npy")
+    y_true = np.load("Prediction/y_true.npy")
     print ("Initial Accuracy: ", str(calculate_accuracy(y_true, y_pred)))
     #out = filter_by_min_length(test_y, 3)
     #for i in range(50):
        # y_pred_smooth = filter_bilateral(y_pred, 50)#filter_by_min_length(y_pred, 5)#remove_single_entries(y_pred)
     y_pred_cont = butter_lpf(y_pred, .25, 10)
     y_pred_smooth = np.rint(y_pred_cont)
-    display_results(y_pred,"Raw Data", y_true, "Continuous", y_pred_smooth, "Smoothed Data")
+    #display_results_2(y_true,"Truth Data", y_pred, "Predicted")
+    display_results(y_true,"Raw Data", y_pred_cont, "Continuous", y_pred_smooth, "Smoothed Data")
     
     print ("Single Smoothed Accuracy: ", str(calculate_accuracy(y_true, y_pred_smooth)))
 
