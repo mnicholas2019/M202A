@@ -74,7 +74,7 @@ def get_details(name):
         label_names = ['eating', 'head_scratch', 'drinking', 'smoking', 'walking', 'other']
         f_hz = 'n/a'
         dimensions = []
-        path = './modelfft_data/'
+        path = './noOtherData/'
     else:
         print("No such dataset")
 
@@ -154,10 +154,14 @@ def load_dataset(name, path, num_classes):
         y_val_binary = keras.utils.to_categorical(y_val, num_classes)
 
     elif (name == 'M202A Project'):
-        data = np.load(path + "dataframeNP.npy")
-        target = np.load(path + "targetNP.npy")
+
+        x_train = np.load(path + "dataframeTrainingNP.npy")
+        y_train = np.load(path + "targetTrainingNP.npy")
+
+        x_val = np.load(path + "dataframeValidationNP.npy")
+        y_val = np.load(path + "targetValidationNP.npy")
         
-        x_train, x_val, y_train, y_val = train_test_split(data, target, test_size=0.2)
+        #x_train, x_val, y_train, y_val = train_test_split(data, target, test_size=0.2)
 
         x_test = np.load(path + "dataframeTestNP.npy")
         y_test = np.load(path + "targetTestNP.npy")
