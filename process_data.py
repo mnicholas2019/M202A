@@ -46,6 +46,34 @@ ACTIVITIES = {
               "Walking": 5
               }
 
+def merge_test_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data):
+    test_windows = []
+    
+    t = wrist_acc_data[0, 0]
+    max_t = min(esense_data[-1,0], wrist_acc_data[-1, 0], wrist_gyro_data[-1, 0], audio_data[-1, 0])
+    
+    while (t + WINDOW_LENGTH <= max_t):
+        start = t
+        end = t + WINDOW_LENGTH
+        
+        esense_trimmed = esense_data[np.logical_and(esense_data[:, 0] >= start,  esense_data[:, 0] <= end)]           
+        wrist_acc_trimmed = wrist_acc_data[np.logical_and(wrist_acc_data[:, 0] >= start,  wrist_acc_data[:, 0] <= end)]
+        wrist_gyro_trimmed = wrist_gryo_data[np.logical_and(wrist_gryo_data[:, 0] >= start,  wrist_gryo_data[:, 0] <= end)]
+        audio_trimmed = audio_data[np.logical_and(audio_data[:, 0] >= start,  audio_data[:, 0] <= end)]
+        
+        test_windows.append(Activity(-1, 
+                                    esense_trimmed,  
+                                    wrist_acc_trimmed,
+                                    wrist_gyro_trimmed,
+                                    audio_trimmed
+                                    ))
+        
+        t += STRIDE_LENGTH
+    
+    
+    
+    return test_windows
+
 def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activity_data):
     training_activities = []    
     num_activities = 0
@@ -296,7 +324,8 @@ if __name__=="__main__":
                 #print ("Wrist Sampling Frequency: {}".format(fs_wrist))
                 
                 training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
-
+                #training_data.extend(merge_test_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data))
+                
             print('\n\n\n\:driver code: ', f)
 
 
