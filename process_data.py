@@ -262,13 +262,14 @@ if __name__=="__main__":
     recalculate = True
     ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
-    train_val_test = "Training" #"Validation" #"Test"
+    train_val_test = ["Test", "Validation", "Training"]
+    testname = "w1_s100"
 
-    if recalculate:
-        training_data = []
 
-        
-        for f in os.walk(os.getcwd() + os.path.sep + train_val_test + os.path.sep):
+    training_data = []
+
+    for dtype in train_val_test:
+        for f in os.walk(os.getcwd() + os.path.sep + dtype + os.path.sep):
 
             if ("Data" in f[0]):
                 print("doing calculation")
@@ -333,24 +334,24 @@ if __name__=="__main__":
                     model_input.append(activity.calculateFeatures(0))
                     labels.append(activity.label)
 
-    if not ABT:
-        c = 0
-        # for i, input in enumerate(model_input):
-        #     for j, stream in enumerate(input):
-        #         if len(stream )!= 24:
-        #             print ("bad input", i, j, c, len(stream))
-        #             c = c+1
-        model_input = np.array(model_input)
-        target = np.zeros((model_input.shape[0], 6))
-        print("model input shape: ", model_input.shape)
-        for i, label in enumerate(labels):
-            target[i][label] = 1
-            if label > 5  or label < 0:
-                print("incorrect label: ", label)
-        print("targe input shape: ", target.shape)
-        np.save("noOtherData/dataframe" + train_val_test +  "NP.npy", model_input)
-        np.save("noOtherData/target" + train_val_test + "NP.npy", target)
-        
+        if not ABT:
+            c = 0
+            # for i, input in enumerate(model_input):
+            #     for j, stream in enumerate(input):
+            #         if len(stream )!= 24:
+            #             print ("bad input", i, j, c, len(stream))
+            #             c = c+1
+            model_input = np.array(model_input)
+            target = np.zeros((model_input.shape[0], 6))
+            print("model input shape: ", model_input.shape)
+            for i, label in enumerate(labels):
+                target[i][label] = 1
+                if label > 5  or label < 0:
+                    print("incorrect label: ", label)
+            print("targe input shape: ", target.shape)
+            np.save("DataVariation/" + testname + "/dataframe" + dtype +  "NP.npy", model_input)
+            np.save("DataVariation/" + testname + "/target" + dtype + "NP.npy", target)
+            
 
 
     
