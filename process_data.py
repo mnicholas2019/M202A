@@ -22,8 +22,8 @@ MARKER_FILE_NAME = "MARKER--org.md2k.mcerebrum--PHONE.csv"
 ESENSE_FILE_NAME = "esense_data.txt"
 AUDIO_FILE_NAME = "audio.wav"
 
-WINDOW_LENGTH = 1000 # How long each training activity is
-STRIDE_LENGTH = 100 # How often to create a new training activity
+WINDOW_LENGTH = 5000 # How long each training activity is
+STRIDE_LENGTH = 500 # How often to create a new training activity
 ESENSE_SAMPLE_RATE = 20
 WRIST_SAMPLE_RATE = 2000
 
@@ -263,7 +263,7 @@ if __name__=="__main__":
     ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
     train_val_test = ["Test", "Validation", "Training"]
-    testname = "w1_s100"
+    testname = "w5_s500"
 
 
     training_data = []
