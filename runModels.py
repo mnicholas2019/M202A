@@ -9,71 +9,76 @@ from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 from tensorflow.keras.models import load_model
 import numpy as np
 
-testlist = ['w3_s500', 'w5_s100', 'w5_s250', 'w5_s500']
+testlist = ['w5_s100']
 
 for testname in testlist:
-	d_name = 'M202A Project'
-	num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_details('M202A Project')
-	path = './DataVariation/' + testname + '/'
+	epochss = [20, 40, 60, 80]
+	for epochs in epochss:
+		d_name = 'M202A Project'
+		num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_details('M202A Project')
+		path = './DataVariationOther/' + testname + '/'
 
-	x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
-
-	num_classes = 6 #only for no other
+		print('testname:',testname)
 
 
-	network_type = 'M202A_CNN'
-	X_train, X_val, X_test = reshape_data(x_train0, x_val0, x_test0, network_type)
+		x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
 
-	batch_size = 256
-	_, num_streams, num_features = x_train0.shape
+		num_classes = 6 #only for no other
 
-	model = model_CNN(num_streams, num_features, num_classes, num_feat_map=32, p=0.3)
-	print(model.summary())
 
-	print('model training ...')
-	epochs = 40
-	model.compile(loss=tensorflow.keras.losses.categorical_crossentropy,
-	              optimizer='adam',
-	              metrics=['accuracy'])
+		network_type = 'M202A_CNN'
+		X_train, X_val, X_test = reshape_data(x_train0, x_val0, x_test0, network_type)
 
-	model_dir = f'Models/{d_name}'
+		batch_size = 256
+		_, num_streams, num_features = x_train0.shape
 
-	name = 'CNN_{}'.format(int(time.time()))
-	tensorboard = TensorBoard(log_dir = 'logs/{}'.format(name))
+		model = model_CNN(num_streams, num_features, num_classes, num_feat_map=32, p=0.3)
+		#print(model.summary())
 
-	if not os.path.exists(model_dir):
-	    os.makedirs(model_dir)
+		print('model training ...')
+		print('num epochs', epochs)
+		model.compile(loss=tensorflow.keras.losses.categorical_crossentropy,
+		              optimizer='adam',
+		              metrics=['accuracy'])
 
-	# checkpoint
-	filepath= f"best_{name}.hdf5"
-	chk_path = os.path.join(model_dir, filepath)
-	checkpoint = ModelCheckpoint(chk_path, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+		model_dir = f'Models/{d_name}'
 
-	model.fit(X_train, y_train_binary,
-	          batch_size=300,
-	          epochs=epochs,
-	          verbose=1,
-	          shuffle=True,
-	          validation_data=(X_val, y_val_binary),
-	          callbacks=[tensorboard, checkpoint])
+		name = 'CNN_{}'.format(int(time.time()))
+		tensorboard = TensorBoard(log_dir = 'logs/{}'.format(name))
 
-	model.save(f'final_{name}.hdf5')
+		if not os.path.exists(model_dir):
+		    os.makedirs(model_dir)
 
-	model = load_model(chk_path)
+		# checkpoint
+		filepath= f"best_{name}.hdf5"
+		chk_path = os.path.join(model_dir, filepath)
+		checkpoint = ModelCheckpoint(chk_path, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
 
-	y_pred = np.argmax(model.predict(X_test), axis=1)
-	y_true = np.argmax(y_test_binary, axis=1)
-	print(y_pred, y_true)
-	cf_matrix = confusion_matrix(y_true, y_pred)
+		model.fit(X_train, y_train_binary,
+		          batch_size=300,
+		          epochs=epochs,
+		          verbose=1,
+		          shuffle=True,
+		          validation_data=(X_val, y_val_binary),
+		          callbacks=[tensorboard, checkpoint])
 
-	np.save("DataVariation/" + testname + "/prediction", y_pred)
-	np.save("DataVariation/" + testname + "/truth", y_true)
+		model.save('epochs/' + testname + '/modelepochvar' + str(epochs) + '.hdf5')
 
-	print(cf_matrix)
-	class_wise_f1 = f1_score(y_true, y_pred, average=None)
-	print('the mean-f1 score: {:.4f}'.format(np.mean(class_wise_f1)))
-	accuracy = accuracy_score(y_true, y_pred)
-	print('accuracy is: {:.4f}'.format(accuracy))
+		model = load_model(chk_path)
+
+		y_pred = np.argmax(model.predict(X_test), axis=1)
+		y_true = np.argmax(y_test_binary, axis=1)
+		print(y_pred, y_true)
+		cf_matrix = confusion_matrix(y_true, y_pred)
+
+		np.save("epochs/" + testname + "/prediction" + str(epochs), y_pred)
+		np.save("epochs/" + testname + "/truth" + str(epochs), y_true)
+
+		print(cf_matrix)
+		class_wise_f1 = f1_score(y_true, y_pred, average=None)
+		print('the mean-f1 score: {:.4f}'.format(np.mean(class_wise_f1)))
+		accuracy = accuracy_score(y_true, y_pred)
+		print('accuracy is: {:.4f}'.format(accuracy))
 
 
 
