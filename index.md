@@ -43,7 +43,7 @@ Figure 1: Overall System Diagram
 
   The purpose of the hardware is to interface with the real world and collect data for classification. There are two hardware components involved: the eSense in-ear wearable (earable) and the MotionSense HRV wristband. The eSense has both a left and right wearable, each containing unique sensors. The right device contains a microphone and is used to record audio data for classification. The left device contains a 6-axis inertial measurement unit (IMU) ), and records absolute head position using a gyroscope and head movement using an accelerometer. The MotionSense HRV also contains a 6-axis IMU, but is mounted on the user’s wrist to record arm motion. Both sensors transmit data over BLE to a smartphone or computer. 
 
-<img src="assets/esense.jpeg" alt="eSense In-Ear Wearable" class="inline"/>
+<img src="assets/esense.jpeg" alt="eSense In-Ear Wearable" class="center"/>
 
 Figure 2: eSense In-Ear Wearable 
 
@@ -77,7 +77,7 @@ Figure 6: List of Impemented Features
  For this project, a Convolutional Neural Network (CNN) was used because it has been shown to have the highest prediction accuracy for activity classification among prior work. The basic framework for the architecture was adapted from the CNN detailed in the in class presentation given by Vikranth. This CNN was capable of automatically adjusting the size of its inputs to allow for feature and sensor holdout tests. 
 
 
-<img src="assets/network.png" alt="Convolutional Network Architecture" class="inline"/>
+<img src="assets/network.PNG" alt="Convolutional Network Architecture" class="inline"/>
 
 Figure 7: Convolutional Network Architecture
 
