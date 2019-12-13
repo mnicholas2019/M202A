@@ -8,13 +8,13 @@
 Despite its many applications, HAR is an extremely difficult problem due to the typically low signal-to-noise ratio of accelerometers, the temporal dependence of the data, and the number of similar activities that arise in a natural environment and may not have been implemented. Additionally, it is difficult to generalise the problem because human movements vary from person to person. However, in recent years, machine learning has improved significantly, allowing researchers to achieve a much higher prediction accuracy in controlled environments compared to traditional classification methods.
   There is a large number of related work published, with the majority of papers focusing on wristband accelerometers and activities involving whole-body movements such as walking, sitting, lying down, and playing sports. This project seeks to differentiate itself by attempting to classify between several highly similar activities involving a combination of the arm and head. 
 
-### Features:
-  * Eating
-  * Drinking
-  * Laughing
-  * Smoking
-  * Scratching/Touching Face
-  * No Activity (Sitting Still)
+ ### Features:
+   * Eating
+   * Drinking
+   * Smoking
+   * Scratching Head
+   * Walking
+   * Other
   
  The activity recognition survey in the “Related Work” section below includes a list of every activity classified by prior work [1]. Drinking, smoking, and scratching head has not been published before. In order to successfully differentiate between these activities, an additional sensor must be used to detect head movement. A 6-axis inertial measurement unit (IMU) was inserted in the user’s left ear and used in conjunction with a wristband for classification. To our knowledge, an in-ear accelerometer has not been used for activity classification yet. To further aid in differentiating the similar activities, a microphone was used to record audio data. 
   Before implementing a classification program, it is a good exercise to imagine intuitively how the activities will “look” different in the data, assuming ideal sensors with no noise or drift and an infinite sample rate. Walking will show a periodic signal in the wristband, and one of the axes will always be “negative”, easily differentiating itself from the other activities. Eating, drinking, smoking, and head scratch all involve a similar motion of bringing the hand to the head for several seconds, followed by returning to the original position. The head scratch is most similar to walking, but the frequency of the periodic motion will be much faster than walking, and the wrist axes will go from negative to positive as the hand is raised. Drinking is unique in that the user’s head will tilt backward, captured by the IMU in the ear. Eating and smoking are extremely similar from an accelerometer’s view, but the microphone can aid in classification. The fourier transform of the audio for drinking likely has most of its power in the low frequencies, while eating will be more evenly distributed. Chewing may even be detected as a periodic signal in the time domain. Intuitively, this classification problem should be solvable in a controlled environment as the selected sensors are able to find differences in every chosen activity that could be learned by a neural network. 
@@ -46,9 +46,11 @@ Figure 1: Overall System Diagram
   The purpose of the hardware is to interface with the real world and collect data for classification. There are two hardware components involved: the eSense in-ear wearable (earable) and the MotionSense HRV wristband. The eSense has both a left and right wearable, each containing unique sensors. The right device contains a microphone and is used to record audio data for classification. The left device contains a 6-axis inertial measurement unit (IMU) ), and records absolute head position using a gyroscope and head movement using an accelerometer. The MotionSense HRV also contains a 6-axis IMU, but is mounted on the user’s wrist to record arm motion. Both sensors transmit data over BLE to a smartphone or computer. 
 
 <img src="assets/esense.jpeg" alt="eSense In-Ear Wearable" class="inline"/>
+
 Figure 2: eSense In-Ear Wearable 
 
 <img src="assets/wristband.png" alt="MotionSense HRV Wristband" class="inline"/>
+
 Figure 3: MotionSense HRV Wristband 
 
 ### 4.3 Data Collection and Experimental Results
@@ -60,6 +62,7 @@ Figure 3: MotionSense HRV Wristband
 <img src="assets/communication.png" alt="Data Collection Setup" class="inline"/>
 
 <img src="assets/impulse.png" alt="Impulse Generated from Clap Motion" class="inline"/>
+
 Figure 5: Impulse Generated from "Clap" Motion
 
 ### 4.4 Data Pre-Processing
@@ -69,6 +72,7 @@ Using a convolution neural network, it is possible (and sometimes preferable) to
   The audio was recorded with a sampling frequency of 8KHz. Frequency features were extracted using the Mel-Frequency Cepstrum (MFC). The MFC calculates the power spectrum over a short period of time using a logarithmic power scale based on human hearing. The first 12 coefficients of the resultant spectrum were computed over each time window. Since the MFC is computed over a much shorter time window than our classification window, the result is a 12 by 16 array of coefficients. 
 
 <img src="assets/features.png" alt="List of Impemented Features" class="inline"/>
+
 Figure 6: List of Impemented Features
 
 ### 4.5 Deep Learning Classifier (Convolutional Neural Network)  
@@ -78,6 +82,7 @@ Figure 6: List of Impemented Features
   A Hann window convolution in the time domain and a fifth order butterworth low-pass filter were also implemented and tested. The result was a continuous signal that could be bucketed to recover the predicted activities. While this appeared to work in some instances, it is fundamentally flawed because the activity predictions have no spatial dependence. For example, drinking and smoking are assigned integer values of 2 and 3, but are no more dependent on each other than drinking and walking (integer value 5). 
 
 <img src="assets/minlength.png" alt="Example of Min Activity Length = 5s on Portion of Test Data" class="inline"/>
+
 Figure 6: Example of Min Activity Length = 5s on Portion of Test Data
 
 ## 5 Experimental Results
