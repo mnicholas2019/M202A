@@ -39,6 +39,8 @@ Lastly, the paper covered sensor selection. Typical human body movements have a 
  The activity classification system can be separated into four components: Hardware, Data Pre-Processing, Classification Network, and Post-Processing. An overview of the entire system is shown in Figure 1 below. Each subsection of the system will be explored in depth in later sections. 
  
 <img src="assets/diagram.png" alt="System Block Diagram" class="inline"/>
+Figure 1: Overall System Diagram
+
 ### 4.2 Hardware
 
 ### 4.3 Data Collection and Experimental Results
