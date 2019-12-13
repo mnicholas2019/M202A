@@ -22,8 +22,8 @@ MARKER_FILE_NAME = "MARKER--org.md2k.mcerebrum--PHONE.csv"
 ESENSE_FILE_NAME = "esense_data.txt"
 AUDIO_FILE_NAME = "audio.wav"
 
-WINDOW_LENGTH = 5000 # How long each training activity is
-STRIDE_LENGTH = 500 # How often to create a new training activity
+#WINDOW_LENGTH = 5000 # How long each training activity is
+#STRIDE_LENGTH = 500 # How often to create a new training activity
 ESENSE_SAMPLE_RATE = 20
 WRIST_SAMPLE_RATE = 2000
 
@@ -74,13 +74,13 @@ def merge_test_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data):
     
     return test_windows
 
-def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activity_data):
+def merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activity_data, WINDOW_LENGTH, STRIDE_LENGTH):
     training_activities = []    
     num_activities = 0
     for activity in activity_data:
         label = int(activity[0])
-        if (label == 0):
-            continue
+        #if (label == 0):
+        #    continue
         start = activity[1]
         end = activity[2]
         
@@ -291,96 +291,102 @@ if __name__=="__main__":
     ABT = 0 #set to 1 to make ABT, set to 0 to create numpy
 
     train_val_test = ["Test", "Validation", "Training"]
-    testname = "w5_s500"
-
-
+    tests = ['w1_s100', 'w1_s250', 'w1_s500', 'w3_s100', 'w3_s250', 'w3_s500', 'w5_s100', 'w5_s250', 'w5_s500']
+    window_strides = ((1000, 100), (1000, 250), (1000, 500),
+                      (3000, 100), (3000, 250), (3000, 500),
+                      (5000, 100), (5000, 250), (5000, 500))
     training_data = []
 
-    for dtype in train_val_test:
-        for f in os.walk(os.getcwd() + os.path.sep + dtype + os.path.sep):
+    for index, testname in enumerate(tests):
+        window_length = window_strides[index][0]
+        stride_length = window_strides[index][1]
+        print('\n\n new test!')
+        print(testname, window_length, stride_length)
+        for dtype in train_val_test:
+            for f in os.walk(os.getcwd() + os.path.sep + dtype + os.path.sep):
 
-            if ("Data" in f[0]):
-                print("doing calculation")
-                folder = f[0] + os.path.sep
-                esense_data = load_esense(folder + ESENSE_FILE_NAME)
-                wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
-                wrist_gyro_data = load_wrist(folder + GYRO_FILE_NAME)  
-                fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
-            
-                activities = load_activities(folder + MARKER_FILE_NAME)
+                if ("Data" in f[0]):
+                    print("doing calculation")
+                    folder = f[0] + os.path.sep
+                    esense_data = load_esense(folder + ESENSE_FILE_NAME)
+                    wrist_acc_data = load_wrist(folder + ACCEL_FILE_NAME)
+                    wrist_gyro_data = load_wrist(folder + GYRO_FILE_NAME)  
+                    fs, audio_data = load_audio(folder + AUDIO_FILE_NAME)
                 
+                    activities = load_activities(folder + MARKER_FILE_NAME)
+                    
 
+                    
+                    (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
+                         sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs)
+                         
+                    # fs_esense = esense_data.shape[0] / ((esense_data[:, 0][-1] - esense_data[:, 0][0]) / 1000);
+                    # fs_wrist = wrist_acc_data.shape[0] / ((wrist_acc_data[:, 0][-1] - wrist_acc_data[:, 0][0]) / 1000);
+                    # esense_fft = binned_fft(wrist_acc_data[:, 1], 20, 40, 10)
+                    # print (esense_fft)
+                    # x = np.linspace(1, 40, 10)
+                    # plt.plot(x, esense_fft[1])
+                    #print ("Esense Sampling Frequency: {}".format(fs_esense))
+                    #print ("Wrist Sampling Frequency: {}".format(fs_wrist))
+                    
+                    training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities, window_length, stride_length))
+                    #training_data.extend(merge_test_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data))
+                    
+                print('\n\n\n\:driver code: ', f)
+
+
+
+                if ABT:
+                    data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
+                                   'esense gyro x','esense gyro y','esense gyro z',
+                                   'wrist acc x', 'wrist acc y', 'wrist acc z',
+                                   'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
+                    features = ['mean ', 'stdev ', 'difference ', 'variance ']
+                    columns = []
+                    for data in data_streams:
+                        for feature in features:
+                            columns.append(feature + data)
+                    columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
+                    columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
+                    columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
+                    columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
+                    columns.append('label')
+                    #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
+                    df = pd.DataFrame(columns = columns)
+                    #print(df)
+               
+                    for activity in training_data:
+                        df = activity.calcFeaturesToABT(df, columns)
+               
+                    ### Save Dataframe to serialized file
+                    df.to_pickle("model_data/dataframe.pkl")
+
+
+                else:
+                    model_input = []
+                    labels = []
+                    for activity in training_data:
+                        model_input.append(activity.calculateFeatures(0))
+                        labels.append(activity.label)
+
+            if not ABT:
+                c = 0
+                # for i, input in enumerate(model_input):
+                #     for j, stream in enumerate(input):
+                #         if len(stream )!= 24:
+                #             print ("bad input", i, j, c, len(stream))
+                #             c = c+1
+                model_input = np.array(model_input)
+                target = np.zeros((model_input.shape[0], 6))
+                print("model input shape: ", model_input.shape)
+                for i, label in enumerate(labels):
+                    target[i][label] = 1
+                    if label > 5  or label < 0:
+                        print("incorrect label: ", label)
+                print("targe input shape: ", target.shape)
+                np.save("DataVariationOther/" + testname + "/dataframe" + dtype +  "NP.npy", model_input)
+                np.save("DataVariationOther/" + testname + "/target" + dtype + "NP.npy", target)
                 
-                (esense_data, wrist_acc_data, wrist_gryo_data, audio_data) = \
-                     sync_data(esense_data, wrist_acc_data, wrist_gyro_data, audio_data, fs)
-                     
-                # fs_esense = esense_data.shape[0] / ((esense_data[:, 0][-1] - esense_data[:, 0][0]) / 1000);
-                # fs_wrist = wrist_acc_data.shape[0] / ((wrist_acc_data[:, 0][-1] - wrist_acc_data[:, 0][0]) / 1000);
-                # esense_fft = binned_fft(wrist_acc_data[:, 1], 20, 40, 10)
-                # print (esense_fft)
-                # x = np.linspace(1, 40, 10)
-                # plt.plot(x, esense_fft[1])
-                #print ("Esense Sampling Frequency: {}".format(fs_esense))
-                #print ("Wrist Sampling Frequency: {}".format(fs_wrist))
-                
-                training_data.extend(merge_sensor_data_stride(esense_data, wrist_acc_data, wrist_gryo_data, audio_data, activities))
-                #training_data.extend(merge_test_data(esense_data, wrist_acc_data, wrist_gryo_data, audio_data))
-                
-            print('\n\n\n\:driver code: ', f)
-
-
-
-            if ABT:
-                data_streams = ['esense acc x', 'esense acc y', 'esense acc z',
-                               'esense gyro x','esense gyro y','esense gyro z',
-                               'wrist acc x', 'wrist acc y', 'wrist acc z',
-                               'wrist gyro x', 'wrist gyro y', 'wrist gyro z']
-                features = ['mean ', 'stdev ', 'difference ', 'variance ']
-                columns = []
-                for data in data_streams:
-                    for feature in features:
-                        columns.append(feature + data)
-                columns.extend(['correlation esense acc xy', 'correlation esense acc xz', 'correlation esense acc yz'])
-                columns.extend(['correlation esense gyro xy', 'correlation esense gyro xz', 'correlation esense gyro yz'])
-                columns.extend(['correlation wrist acc xy', 'correlation wrist acc xz', 'correlation wrist acc yz'])
-                columns.extend(['correlation wrist gyro xy', 'correlation wrist gyro xz', 'correlation wrist gyro yz'])
-                columns.append('label')
-                #columns = ['esense acc x mean', 'esense acc y mean', 'esense acc z mean', 'wrist gyro', 'audio', 'label']
-                df = pd.DataFrame(columns = columns)
-                #print(df)
-           
-                for activity in training_data:
-                    df = activity.calcFeaturesToABT(df, columns)
-           
-                ### Save Dataframe to serialized file
-                df.to_pickle("model_data/dataframe.pkl")
-
-
-            else:
-                model_input = []
-                labels = []
-                for activity in training_data:
-                    model_input.append(activity.calculateFeatures(0))
-                    labels.append(activity.label)
-
-        if not ABT:
-            c = 0
-            # for i, input in enumerate(model_input):
-            #     for j, stream in enumerate(input):
-            #         if len(stream )!= 24:
-            #             print ("bad input", i, j, c, len(stream))
-            #             c = c+1
-            model_input = np.array(model_input)
-            target = np.zeros((model_input.shape[0], 6))
-            print("model input shape: ", model_input.shape)
-            for i, label in enumerate(labels):
-                target[i][label] = 1
-                if label > 5  or label < 0:
-                    print("incorrect label: ", label)
-            print("targe input shape: ", target.shape)
-            np.save("DataVariation/" + testname + "/dataframe" + dtype +  "NP.npy", model_input)
-            np.save("DataVariation/" + testname + "/target" + dtype + "NP.npy", target)
-            
 
 
     
