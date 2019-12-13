@@ -3,7 +3,7 @@
 ## 12/13/2019
 
 ## GitHub Repo: <a href="https://github.com/mnicholas2019/M202A">Visit Our GitHub Repo Here</a>
-<a href="https://www.youtube.com/watch?v=mH1CqcuQvR4">## Link to Video</a>
+## <a href="https://www.youtube.com/watch?v=mH1CqcuQvR4">Link to Video</a>
 
 # 1 Abstract
   Human Activity Recognition has become a popular research topic in recent years with the rapidly improving capabilities of machine learning algorithms. A wrist-worn accelerometer is a popular sensor for activity recognition in research, but has a limited activity set due to its inability to differentiate between similar hand motions. In this project, an additional inertial measurement unit and a microphone was added to the user’s ear, with the purpose of aiding the wrist sensor in classifying these tasks. A convolutional neural network was implemented, and activities were classified using features extracted from a sliding time window. With the combined sensor inputs, it was possible to classify similar activities such as: eating, drinking, smoking, and scratching with an accuracy of over 98%. 
