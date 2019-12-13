@@ -10,24 +10,72 @@ from tensorflow.keras.models import load_model
 import numpy as np
 
 testlist = ['w5_s100']
-
+#feature_holdout = ['Mean', 'Stdev', 'Difference', 'Variance', 'Correlation', 'FFT', 'Real']
+sensor_holdout = ['Esense_Accel', 'Esense_Gyro', 'Wrist_Accel', 'Wrist_Gyro', 'Just_Wrist', 'Just_Esense']
 for testname in testlist:
-	epochss = [20, 40, 60, 80]
-	for epochs in epochss:
-		d_name = 'M202A Project'
-		num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_details('M202A Project')
-		path = './DataVariationOther/' + testname + '/'
-
-		print('testname:',testname)
+	epochs = 40
+	d_name = 'M202A Project'
+	num_classes, sensors, locations, label_names, f_hz, dimensions, path = get_details('M202A Project')
+	path = './DataVariationOther/' + testname + '/'
 
 
+	print('testname:',testname)
+
+
+	# for index, feat in enumerate(feature_holdout):
+	# 	x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
+	# 	print('shape', x_train0.shape)
+	# 	if feat == 'JustFFT':
+	# 	    for i in range(8):
+	# 	    	x_train0 = np.delete(x_train0[:][:], 0, axis = 2)
+	# 	    	x_val0 = np.delete(x_val0[:][:], 0, axis = 2)
+	# 	    	x_test0 = np.delete(x_test0[:][:], 0, axis = 2)
+	# 	elif feat != 'FFT' and feat != 'Real':
+	# 		x_train0 = np.delete(x_train0[:][:], index, axis = 2)
+	# 		x_val0 = np.delete(x_val0[:][:], index, axis = 2)
+	# 		x_test0 = np.delete(x_test0[:][:], index, axis = 2)
+	# 	elif feat == 'FFT':
+	# 		x_train0 = np.delete(x_train0[:][:], index+2, axis = 2)
+	# 		x_val0 = np.delete(x_val0[:][:], index+2, axis = 2)
+	# 		x_test0 = np.delete(x_test0[:][:], index+2, axis = 2)
+	# 		x_train0 = np.delete(x_train0[:][:], index+1, axis = 2)
+	# 		x_val0 = np.delete(x_val0[:][:], index+1, axis = 2)
+	# 		x_test0 = np.delete(x_test0[:][:], index+1, axis = 2)
+	# 		x_train0 = np.delete(x_train0[:][:], index, axis = 2)
+	# 		x_val0 = np.delete(x_val0[:][:], index, axis = 2)
+	# 		x_test0 = np.delete(x_test0[:][:], index, axis = 2)
+
+		# print('Doing', feat, 'Test: ', x_train0.shape)
+	for index, sensor in enumerate(sensor_holdout):
 		x_train0, x_val0, x_test0, y_train_binary, y_val_binary, y_test_binary = load_dataset(d_name, path, num_classes)
+		print('shape', x_train0.shape)
+		if index < 4:
+			for i in range(3):
+				x_train0 = np.delete(x_train0[:][:], index*3, axis = 1)
+				x_val0 = np.delete(x_val0[:][:], index*3, axis = 1)
+				x_test0 = np.delete(x_test0[:][:], index*3, axis = 1)
+		elif index == 4:
+			for i in range(6):
+				x_train0 = np.delete(x_train0[:][:], 0, axis = 1)
+				x_val0 = np.delete(x_val0[:][:], 0, axis = 1)
+				x_test0 = np.delete(x_test0[:][:], 0, axis = 1)
+		else:
+			for i in range(6):
+				x_train0 = np.delete(x_train0[:][:], 6, axis = 1)
+				x_val0 = np.delete(x_val0[:][:], 6, axis = 1)
+				x_test0 = np.delete(x_test0[:][:], 6, axis = 1)
+
+
+		print('Doing', sensor, 'Test: ', x_train0.shape)
+
+			
 
 		num_classes = 6 #only for no other
 
 
 		network_type = 'M202A_CNN'
 		X_train, X_val, X_test = reshape_data(x_train0, x_val0, x_test0, network_type)
+
 
 		batch_size = 256
 		_, num_streams, num_features = x_train0.shape
@@ -62,7 +110,7 @@ for testname in testlist:
 		          validation_data=(X_val, y_val_binary),
 		          callbacks=[tensorboard, checkpoint])
 
-		model.save('epochs/' + testname + '/modelepochvar' + str(epochs) + '.hdf5')
+		model.save('Sensor_Holdout/' + sensor +  '/mfccmodel.hdf5')
 
 		model = load_model(chk_path)
 
@@ -71,8 +119,8 @@ for testname in testlist:
 		print(y_pred, y_true)
 		cf_matrix = confusion_matrix(y_true, y_pred)
 
-		np.save("epochs/" + testname + "/prediction" + str(epochs), y_pred)
-		np.save("epochs/" + testname + "/truth" + str(epochs), y_true)
+		np.save("Sensor_Holdout/" + sensor +  "/prediction", y_pred)
+		np.save("Sensor_Holdout/" + sensor + "/truth", y_true)
 
 		print(cf_matrix)
 		class_wise_f1 = f1_score(y_true, y_pred, average=None)

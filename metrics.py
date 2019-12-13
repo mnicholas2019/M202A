@@ -5,10 +5,8 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score, accuracy_score
 
-folder = 'DataVariation'
-windows_strides = ['w1_s100', 'w1_s250', 'w1_s500', 
-				   'w3_s100', 'w3_s250', 'w3_s500',
-				   'w5_s100', 'w5_s250', 'w5_s500']
+folder = 'Sensor_Holdout'
+windows_strides = ['Esense_Accel', 'Esense_Gyro', 'Just_Wrist', 'Wrist_Accel', 'Wrist_Gyro', 'Just_Esense']
 
 
 print('\n')

@@ -116,13 +116,15 @@ class Activity():
 
             window_calc = np.concatenate((window_calc, fft), axis = 1)
             window_calc = np.nan_to_num(window_calc)
-            #mfcc = mfcc_audio(np.asfortranarray(self.audio_data[:, 1]))
-            #if mfcc.shape[1] != 16:
-            #    zeros = np.zeros((12, 16-mfcc.shape[1]))
-            #    mfcc = np.concatenate((mfcc, zeros), axis=1)
+            mfcc = mfcc_audio(np.asfortranarray(self.audio_data[:, 1]))
+            print(mfcc.shape)
+            if mfcc.shape[1] != 16:
+                print(mfcc.shape[1])
+                zeros = np.zeros((12, 16-mfcc.shape[1]))
+                mfcc = np.concatenate((mfcc, zeros), axis=1)
                 
 
-            #window_calc = np.concatenate((window_calc, mfcc), axis = 1)
+            window_calc = np.concatenate((window_calc, mfcc), axis = 1)
             return window_calc
         
 
