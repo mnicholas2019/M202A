@@ -1,4 +1,4 @@
-# Activity Classification Using Wristband and Earable
+# Activity Classification Using Earables and a Wristband
 ## Aidan Cookson and Matt Nicholas
 ## 12/13/2019
 
