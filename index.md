@@ -43,9 +43,32 @@ Figure 1: Overall System Diagram
 
 ### 4.2 Hardware
 
+  The purpose of the hardware is to interface with the real world and collect data for classification. There are two hardware components involved: the eSense in-ear wearable (earable) and the MotionSense HRV wristband. The eSense has both a left and right wearable, each containing unique sensors. The right device contains a microphone and is used to record audio data for classification. The left device contains a 6-axis inertial measurement unit (IMU) ), and records absolute head position using a gyroscope and head movement using an accelerometer. The MotionSense HRV also contains a 6-axis IMU, but is mounted on the user’s wrist to record arm motion. Both sensors transmit data over BLE to a smartphone or computer. 
+
+<img src="assets/esense.png" alt="eSense In-Ear Wearable" class="inline"/>
+Figure 2: eSense In-Ear Wearable 
+
+<img src="assets/wristband.png" alt="MotionSense HRV Wristband" class="inline"/>
+Figure 3: MotionSense HRV Wristband 
+
 ### 4.3 Data Collection and Experimental Results
 
+  In order to train a predictive model one needs a dataset with instances for which predictions will be made, and the associated truth values for each instance in that dataset. To train an activity classifier using the devices described, the dataset needed is the raw IMU(accelerometer/gyroscope x,y,z axis) data from both the Earable and Wristband, the microphone data from the Earables, and the timestamp of each datapoint. The associated truth values would be a timeline of when each activity is performed. No such dataset exists, so one was generated in order to train an activity classifier. 
+One hardware issue encountered during the data collection process was time synchronization. Due to the nature of the hardware, the wristband and two eSense earables had to be connected to separate devices. This resulted in a synchronization issue among data from different sensors. To overcome this, we preceded each data collection run with a hand motion capable of generating an impulse in each datastream. The left eSense earable was held in the hand containing the wristband, and a “punch/clap” motion was performed. The resulting impulse could be seen in both the accelerometers and the audio data. By aligning these impulses, all datastreams could be synchronized. Next, the subject would perform a series of activities while an onlooker records the timestamps of the activities in the mCerebrum application.
+During data collection, there is a way to insert activity markers that appear in the data generated as timestamps of the start and end of activities. From these markers it can be determined what activity is being performed at all timestamps during data collection. Data was collected for the training, validation, and test sets separately, to ensure proper model evaluation.
+
+<img src="assets/communication.png" alt="Data Collection Setup" class="inline"/>
+Figure 4: Data Collection Setup
+
+
 ### 4.4 Data Pre-Processing
+
+  The data from the hardware needs to be processed and formatted to a specific structure for the neural network to accept it as input. In addition to splitting the data into temporal “windows”, features are extracted from the raw data. The system uses a sliding window technique in which a prediction is made on a window in time. The overlapping windows allow for both a dramatically increased training data size, and the ability to smooth the classification in post-processing.
+Using a convolution neural network, it is possible (and sometimes preferable) to use the raw IMU data as inputs to the network. However, our sensors had drastically varying sample rates, so this was not feasible. Instead, time features were extracted for each axis of the IMU data. The selected features include: mean, standard deviation, range, variance, and correlation among axes. These were selected based on the results in prior relevant work [2], [3]. Frequency features were also extracted from the IMU data. The FFT was calculated from 0Hz to the sampling frequency and ten frequency “bins” were calculated using the mean. 
+The audio was recorded with a sampling frequency of 8KHz. Frequency features were extracted using the Mel-Frequency Cepstrum (MFC). The MFC calculates the power spectrum over a short period of time using a logarithmic power scale based on human hearing. The first 12 coefficients of the resultant spectrum were computed over each time window. Since the MFC is computed over a much shorter time window than our classification window, the result is a 12 by 16 array of coefficients. 
+
+<img src="assets/features.png" alt="List of Impemented Features" class="inline"/>
+Figure 5: List of Impemented Features
 
 ### 4.5 Deep Learning Classifier (Convolutional Neural Network)  
 
