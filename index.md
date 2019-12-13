@@ -1,7 +1,5 @@
 # 1 Abstract
   Human Activity Recognition has become a popular research topic in recent years with the rapidly improving capabilities of machine learning algorithms. A wrist-worn accelerometer is a popular sensor for activity recognition in research, but has a limited activity set due to its inability to differentiate between similar hand motions. In this project, an additional inertial measurement unit and a microphone was added to the user’s ear, with the purpose of aiding the wrist sensor in classifying these tasks. A convolutional neural network was implemented, and activities were classified using features extracted from a sliding time window. With the combined sensor inputs, it was possible to classify similar activities such as: eating, drinking, smoking, and scratching with an accuracy of over 98%. 
-  
-  - [Abstract](pages/abstract.md)
 
 # 2 Introduction
  Human Activity Recognition (HAR) is the process of using sensors, such as accelerometers or microphones, to classify human motion into a discrete set of known activities. 	HAR has many diverse applications, and has become an extremely popular research topic in recent years. The first popular use of HAR is to recognise when elderly people fall down and seek assistance. In addition to healthcare, HAR has applications in accessibility, security, and sports. HAR systems can also be used in conjunction with traditional health sensors to help catalog data based on the activity being performed. 
@@ -76,6 +74,12 @@ Using a convolution neural network, it is possible (and sometimes preferable) to
 Figure 6: List of Impemented Features
 
 ## 4.5 Deep Learning Classifier (Convolutional Neural Network)  
+ For this project, a Convolutional Neural Network (CNN) was used because it has been shown to have the highest prediction accuracy for activity classification among prior work. The basic framework for the architecture was adapted from the CNN detailed in the in class presentation given by Vikranth. This CNN was capable of automatically adjusting the size of its inputs to allow for feature and sensor holdout tests. 
+
+
+<img src="assets/network.png" alt="Convolutional Network Architecture" class="inline"/>
+
+Figure 7: Convolutional Network Architecture
 
 ## 4.6 Data Post-Processing
   Several post-processing smoothing algorithms were implemented based on prior knowledge about the activities. For the selected activities, we assumed the user would not be performing these activities for less than 5-10 seconds. Since the windows are much shorter than this and they are overlapping, it is possible to remove erroneous activity predictions. Specifically, if there is a predicted activity shorter than 5-10 seconds, it is removed and set to the previous predicted activity. 
@@ -83,7 +87,7 @@ Figure 6: List of Impemented Features
 
 <img src="assets/minlength.png" alt="Example of Min Activity Length = 5s on Portion of Test Data" class="inline"/>
 
-Figure 6: Example of Min Activity Length = 5s on Portion of Test Data
+Figure 8: Example of Min Activity Length = 5s on Portion of Test Data
 
 # 5 Experimental Results
 
@@ -92,7 +96,28 @@ Figure 6: Example of Min Activity Length = 5s on Portion of Test Data
   
  <img src="assets/ConfusionMatrix.png" alt="Sample Confusion Matrix" class="inline"/>
 
-Figure 6: Sample Confusion Matrix
+Figure 9: Sample Confusion Matrix
+
+## 5.2 Window Length, Stride Length, and Epoch Variations
+  First, model performance was examined using a number of different window and stride length combinations. A five second window length with one hundred millisecond stride length was deemed to perform the best. Next, using this chosen stride and window length combination, the model performance was analyzed using a different number of epochs during training. 40 epochs was deemed the optimal amount, since it offered a good combination of high performance, while still training quickly. It must be noted that these values do not include the MFCC features from the audio recordings. When these features were included in training the model, the classification accuracy dropped from 98% to 75%, and the F1-score dropped from 98 to 72. We suspect that this is a result of very noisy, low quality audio data as a result of hardware constraints. When playing back the audio recordings from the Esense Earables, the audio was quiet and had a low signal to noise ratio. As a result, we opted to not include the MFCC features.
+  
+<img src="assets/WindowEpoch.png" alt="Window, Stride, and Epoch Variation Results" class="inline"/>
+
+Figure 10: Window, Stride, and Epoch Variation Results
+
+## 5.3 Feature Contribution
+  Feature holdout tests were performed with the optimal window size, stride length combination chosen above. During these tests, one feature was held out at a time in order to determine the predictive capabilities of each feature in the model. The model performed worse when the ‘Axis Correlation’ feature was left out. However, the model performance never dropped dramatically when any one feature was held out. This shows that some features could be removed, which would allow for faster training, while still performing well. However, since our test data was taken in a relatively controlled environment, we decided to leave each feature in, since they likely would still hold high predictive power in more generalized environments. We also ran the model using just the MFCC data, which predictably performed poorly (50% classification accuracy). As mentioned in the previous section, the audio quality was low, and so the MFCC features did not hold much predictive power. 
+
+<img src="assets/FeatureContribution.png" alt="Feature Contribution Results" class="inline"/>
+
+Figure 11: Feature Contribution Results
+
+## 5.4 Sensor Contribution
+  Finally, one at a time, different sensors were removed from the model to analyze their predictive powers. Using just the MotionSense sensor, activity classification remained high (92% classification and F1-score). When using only the Esense Earables, our model was still able to make predictions with accuracy in the high 80s. This shows the importance that Earable devices have in improving HAR. When used in combination with the MotionSense, near perfect accuracy was achieved.
+
+<img src="assets/SensorContribution.png" alt="Sensor Contribution Results" class="inline"/>
+
+Figure 12: Sensor Contribution Results
 
 # 6 Conclusion and Next Steps
  Despite the high accuracy achieved by our model, it is important to note that our experimental setup is far from a real-world environment, and the classifier would most definitely struggle if not for the highly controlled setup. Throughout all of the data collected, only one activity was being performed at a time. In a real-world application, the user could be performing multiple activities at a time, such as walking and eating, which would confuse the model. These combined activities would have to be trained a new, separate, activities. Furthermore, the data was only collected on two participants. Everybody has different bodies and movements, so my “drinking” may look completely different from another user. The classifier must also be trained on every new activity, and there are many similar activities not accounted for in our model. The audio was also controlled during data collection. Background noise was minimized, which is not a realistic setting. 
