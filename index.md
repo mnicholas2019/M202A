@@ -45,7 +45,7 @@ Figure 1: Overall System Diagram
 
   The purpose of the hardware is to interface with the real world and collect data for classification. There are two hardware components involved: the eSense in-ear wearable (earable) and the MotionSense HRV wristband. The eSense has both a left and right wearable, each containing unique sensors. The right device contains a microphone and is used to record audio data for classification. The left device contains a 6-axis inertial measurement unit (IMU) ), and records absolute head position using a gyroscope and head movement using an accelerometer. The MotionSense HRV also contains a 6-axis IMU, but is mounted on the user’s wrist to record arm motion. Both sensors transmit data over BLE to a smartphone or computer. 
 
-<img src="assets/esense.png" alt="eSense In-Ear Wearable" class="inline"/>
+<img src="assets/esense.jpeg" alt="eSense In-Ear Wearable" class="inline"/>
 Figure 2: eSense In-Ear Wearable 
 
 <img src="assets/wristband.png" alt="MotionSense HRV Wristband" class="inline"/>
@@ -84,8 +84,8 @@ Figure 6: Example of Min Activity Length = 5s on Portion of Test Data
 
 ## 6 Conclusion and Next Steps
  Despite the high accuracy achieved by our model, it is important to note that our experimental setup is far from a real-world environment, and the classifier would most definitely struggle if not for the highly controlled setup. Throughout all of the data collected, only one activity was being performed at a time. In a real-world application, the user could be performing multiple activities at a time, such as walking and eating, which would confuse the model. These combined activities would have to be trained a new, separate, activities. Furthermore, the data was only collected on two participants. Everybody has different bodies and movements, so my “drinking” may look completely different from another user. The classifier must also be trained on every new activity, and there are many similar activities not accounted for in our model. The audio was also controlled during data collection. Background noise was minimized, which is not a realistic setting. 
-	The next steps for this project are to collect more data, make data collection simpler, and develop a real-time activity classification application for Android devices. The application should be able to communicate with all three hardware devices simultaneously, fixing the timing synchronization problem. Our existing model could then be ported to the Android application using TensorFlow Lite and activity predictions could be made in real-time.
-	As research interest in Human Activity Recognition grows and classification accuracy is improved with new models, we move towards a generalized HAR system capable of accurately predicting activities in an uncontrolled environment. The applications for such a technology are enlessely diverse and could improve the way we track our health, sports performance, security threats, and addictions. 
+  The next steps for this project are to collect more data, make data collection simpler, and develop a real-time activity classification application for Android devices. The application should be able to communicate with all three hardware devices simultaneously, fixing the timing synchronization problem. Our existing model could then be ported to the Android application using TensorFlow Lite and activity predictions could be made in real-time.
+  As research interest in Human Activity Recognition grows and classification accuracy is improved with new models, we move towards a generalized HAR system capable of accurately predicting activities in an uncontrolled environment. The applications for such a technology are enlessely diverse and could improve the way we track our health, sports performance, security threats, and addictions. 
 
 
 ## 7 Bibliography
