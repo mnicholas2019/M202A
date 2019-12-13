@@ -85,6 +85,13 @@ Figure 6: Example of Min Activity Length = 5s on Portion of Test Data
 
 # 5 Experimental Results
 
+## 5.1 Metrics
+  The primary methods for analyzing the performance of our system is through confusion matrices, the classification accuracy, and the f1-score. A confusion matrix gives a visual representation of the performance of a system. The Y-axis is the actual classification, and the X-axis is the predicted classification. Thus, the diagonal from left to right are correctly classified instances. The classification accuracy is simply the number of correctly classified instances divided by the total number of instances. However, with an unbalanced dataset, classification accuracy can be misleading. For this reason, the F1-score is used to give another measure of performance. The F1 score is the harmonic mean between precision and recall. Precision is the proportion of instances that were classified correctly as some class divided by the number of instances classified as that class. Recall is the number of correctly classified instances of a class divided by the total number of actual instances of that class.
+  
+ <img src="assets/ConfusionMatrix.png" alt="Sample Confusion Matrix" class="inline"/>
+
+Figure 6: Sample Confusion Matrix
+
 # 6 Conclusion and Next Steps
  Despite the high accuracy achieved by our model, it is important to note that our experimental setup is far from a real-world environment, and the classifier would most definitely struggle if not for the highly controlled setup. Throughout all of the data collected, only one activity was being performed at a time. In a real-world application, the user could be performing multiple activities at a time, such as walking and eating, which would confuse the model. These combined activities would have to be trained a new, separate, activities. Furthermore, the data was only collected on two participants. Everybody has different bodies and movements, so my “drinking” may look completely different from another user. The classifier must also be trained on every new activity, and there are many similar activities not accounted for in our model. The audio was also controlled during data collection. Background noise was minimized, which is not a realistic setting. 
   The next steps for this project are to collect more data, make data collection simpler, and develop a real-time activity classification application for Android devices. The application should be able to communicate with all three hardware devices simultaneously, fixing the timing synchronization problem. Our existing model could then be ported to the Android application using TensorFlow Lite and activity predictions could be made in real-time.
