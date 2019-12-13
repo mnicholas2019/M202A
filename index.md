@@ -8,7 +8,7 @@
 Despite its many applications, HAR is an extremely difficult problem due to the typically low signal-to-noise ratio of accelerometers, the temporal dependence of the data, and the number of similar activities that arise in a natural environment and may not have been implemented. Additionally, it is difficult to generalise the problem because human movements vary from person to person. However, in recent years, machine learning has improved significantly, allowing researchers to achieve a much higher prediction accuracy in controlled environments compared to traditional classification methods.
   There is a large number of related work published, with the majority of papers focusing on wristband accelerometers and activities involving whole-body movements such as walking, sitting, lying down, and playing sports. This project seeks to differentiate itself by attempting to classify between several highly similar activities involving a combination of the arm and head. 
 
- ### Features:
+### Features:
    * Eating
    * Drinking
    * Smoking
